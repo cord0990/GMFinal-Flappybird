@@ -19,7 +19,7 @@ public class BackgroundRenderer {
     }
 
     public void render(SpriteBatch batch) {
-        // MUY IMPORTANTE: asegurar color blanco (alpha 1) antes de dibujar texturas
+        // asegurar color blanco (alpha 1) antes de dibujar texturas
         batch.setColor(1f, 1f, 1f, 1f);
 
         Texture bg = assets.getBackground();
