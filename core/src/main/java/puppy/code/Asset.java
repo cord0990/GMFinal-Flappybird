@@ -1,50 +1,71 @@
 package puppy.code;
 
-
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
+/**
+ * Clase Asset
+ * Encargada de cargar y administrar todos los recursos gráficos del juego (texturas).
+ * Aplica el patrón Singleton → evidencia GM2.1.
+ * Utiliza encapsulamiento (atributos privados + getters/setters) → evidencia GM1.6.
+ */
 public class Asset {
-	private Texture background;
-	private Texture ground;
-	private Texture tuboTex;
-	private Texture[] birdFrames;
-	
-	public Asset(){
-	setBackground(new Texture("flappy/background.png"));
-    setGround(new Texture("flappy/ground.png"));
-    setTuboTex(new Texture("flappy/pipe.png"));
-    birdFrames = new Texture[] {
-    	        new Texture("flappy/bird0.png"),
-    	        new Texture("flappy/bird1.png"),
-    	        new Texture("flappy/bird2.png")
-    	    };
-	}
 
-	public Texture getBackground() {
-		return background;
-	}
+    // --- Instancia estática única (Singleton GM2.1) ---
+    private static Asset instancia;
 
-	public void setBackground(Texture background) {
-		this.background = background;
-	}
+    // --- Atributos privados ---
+    private Texture background;
+    private Texture ground;
+    private Texture tuboTex;
+    private Texture[] birdFrames;
+    private Texture[] enemyFrames;
 
-	public Texture getGround() {
-		return ground;
-	}
+    /**
+     * Constructor privado → evita creación de múltiples instancias.
+     * Carga los recursos gráficos desde la carpeta "flappy/".
+     */
+    private Asset() {
+        background = new Texture("flappy/background.png");
+        ground = new Texture("flappy/ground.png");
+        tuboTex = new Texture("flappy/pipe.png");
 
-	public void setGround(Texture ground) {
-		this.ground = ground;
-	}
+        birdFrames = new Texture[]{
+            new Texture("flappy/bird0.png"),
+            new Texture("flappy/bird1.png"),
+            new Texture("flappy/bird2.png")
+        };
 
-	public Texture getTuboTex() {
-		return tuboTex;
-	}
+        enemyFrames = new Texture[]{
+            new Texture(Gdx.files.internal("flappy/enemy0.png")),
+            new Texture(Gdx.files.internal("flappy/enemy1.png")),
+            new Texture(Gdx.files.internal("flappy/enemy2.png"))
+        };
+    }
 
-	public void setTuboTex(Texture tuboTex) {
-		this.tuboTex = tuboTex;
-	}
-	
-	public Texture[] getBirdFrames(){
-		return this.birdFrames;
-	}
+    /**
+     * Devuelve la instancia única de la clase (patrón Singleton GM2.1)
+     */
+    public static Asset getInstancia() {
+        if (instancia == null) {
+            instancia = new Asset();
+        }
+        return instancia;
+    }
+
+    // --- Métodos de acceso (encapsulamiento GM1.6) ---
+    public Texture getBackground() { return background; }
+    public Texture getGround() { return ground; }
+    public Texture getTuboTex() { return tuboTex; }
+    public Texture[] getBirdFrames() { return birdFrames; }
+    public Texture[] getEnemyFrames() { return enemyFrames; }
+
+    /** Libera los recursos cargados al finalizar el juego */
+    public void dispose() {
+        background.dispose();
+        ground.dispose();
+        tuboTex.dispose();
+        for (Texture t : birdFrames) t.dispose();
+        for (Texture t : enemyFrames) t.dispose();
+    }
 }

@@ -3,35 +3,38 @@ package puppy.code.Colisiones;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 
+/**
+ * Interfaz Colision
+ * Define el contrato para todos los objetos que participan en el sistema de colisiones del juego.
+ * Implementada por: Tubo, Enemigo, (y opcionalmente Jugador)
+ * → Evidencia directa del punto GM1.5.
+ */
 public interface Colision {
-    // Actualiza posición/estado con delta time
+
+    /** Actualiza la posición o estado del objeto según el tiempo transcurrido (delta time) */
     void update(float delta);
 
-    // ¿Colisiona con el jugador/ave?
+    /** Determina si existe colisión con el área (hitbox) del jugador */
     boolean colisiona(Rectangle boundsJugador);
 
-    // ¿Ya salió por la izquierda de la pantalla?
+    /** Indica si el objeto ya salió de la pantalla (por la izquierda) */
     boolean fueraDePantalla();
 
-    // Reposiciona para reciclar (por ejemplo, más a la derecha)
+    /** Reposiciona el objeto, por ejemplo, para reciclarlo más a la derecha */
     void reposicionar(float nuevoX);
 
-    // Coordenadas/medidas útiles
+    /** Devuelve la coordenada X del objeto */
     float getX();
+
+    /** Devuelve el ancho útil del objeto (para cálculo de espacio o colisión) */
     float getAncho();
 
-	void draw(SpriteBatch batch, float worldheight);
+    /** Dibuja el objeto en pantalla usando un SpriteBatch de LibGDX */
+    void draw(SpriteBatch batch, float worldheight);
 
-	//Rectangle[] getBounds(); //Hitboxs
+    /** Devuelve la velocidad horizontal del objeto */
+    float getVelocidad();
 
-	float getVelocidad();
-
-	Rectangle[] getBounds();
-
-    // Para la clase de lista de obstrucciones
-    //boolean otorgoPunto();
-    //void marcarPuntoOtorgado();
-
-    // (Opcional) dibujado; si usas LibGDX, pasa SpriteBatch
-    //default void render(Object batch) { /* no-op por defecto */ }
+    /** Devuelve las hitboxes asociadas (superior/inferior o principal) */
+    Rectangle[] getBounds();
 }

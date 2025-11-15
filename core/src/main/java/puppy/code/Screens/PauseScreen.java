@@ -1,73 +1,80 @@
-
 package puppy.code.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
 
 import puppy.code.FlappyGameMenu;
+import puppy.code.Screens.UIBase.BaseUIScreen;
 
-public class PauseScreen implements Screen {
+/**
+ * Clase PauseScreen
+ * Pantalla de pausa del juego. Permite continuar o volver al menú principal.
+ * Hereda de BaseUIScreen → aplica el patrón Template Method (GM2.2),
+ * reutilizando el flujo común de pantallas de interfaz.
+ */
+public class PauseScreen extends BaseUIScreen {
 
+    // --- Atributos específicos ---
     private final FlappyGameMenu game;
-    private final Screen previousGame;
-    private SpriteBatch batch;
-    private OrthographicCamera camera;
-    private Texture bg, ground, pipeTex;
+    private final Screen previousGame; // referencia a GameScreen para reanudar
+    private Texture bg;
 
-    private UIRenderer ui;
-    private float worldWidth = 480;
-    private float worldHeight = 800;
-
-    public PauseScreen(FlappyGameMenu game, Screen previousGame) { this.game = game; this.previousGame = previousGame; }
-
-    @Override
-    public void show() {
-        batch = new SpriteBatch();
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, worldWidth, worldHeight);
-
-        bg = new Texture("flappy/background.png");
-        ground = new Texture("flappy/ground.png");
-        pipeTex = new Texture("flappy/pipe.png");
-
-        ui = new UIRenderer();
+    /**
+     * Constructor: recibe el juego principal y la pantalla anterior.
+     */
+    public PauseScreen(FlappyGameMenu game, Screen previousGame) {
+        super(480f, 800f); // dimensiones lógicas de esta pantalla
+        this.game = game;
+        this.previousGame = previousGame;
     }
 
+    /** Carga recursos específicos de la pantalla de pausa */
     @Override
-    public void render(float delta) {
+    protected void loadResources() {
+        bg = new Texture(Gdx.files.internal("flappy/gameover_bg.png"));
+    }
+
+    /**
+     * Manejo de entrada:
+     *  - ESPACIO o CLICK: volver al juego anterior.
+     *  - ESC: ir al menú principal.
+     */
+    @Override
+    protected void handleInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || Gdx.input.justTouched()) {
-            game.setScreen(previousGame);
-            return;
+            game.setScreen(previousGame); // reanuda la partida
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            game.setScreen(new MainMenuScreen(game)); // vuelve al menú
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            game.setScreen(new MainMenuScreen(game));
-            return;
-        }
-        ScreenUtils.clear(0,0,0,1);
-        camera.update();
-        batch.setProjectionMatrix(camera.combined);
-        batch.begin();
-
-        ui.drawPanel(batch, 40, worldHeight/2f-100, worldWidth-80, 200, 0.45f);
-        ui.drawCenteredScaled(batch, "Pausa", worldWidth/2f, worldHeight/2f+40, 1.4f);
-        ui.drawCenteredScaled(batch, "ESPACIO: continuar   |   ESC: menu", worldWidth/2f, worldHeight/2f-20, 1.0f);
-
-        batch.end();
     }
 
-    @Override public void resize(int width, int height) { }
-    @Override public void pause() { }
-    @Override public void resume() { }
-    @Override public void hide() { dispose(); }
+    /** Dibuja el contenido específico de la pantalla de pausa */
     @Override
-    public void dispose() {
-        batch.dispose();
-        bg.dispose(); ground.dispose(); pipeTex.dispose();
-        ui.dispose();
+    protected void drawContent() {
+        // Fondo
+        if (bg != null) {
+            batch.setColor(1, 1, 1, 1);
+            batch.draw(bg, 0, 0, worldWidth, worldHeight);
+        }
+
+        // Textos
+        ui.drawCenteredScaled(batch, "Pausa",
+            worldWidth / 2f,
+            worldHeight / 2f + 50f,
+            2.0f);
+
+        ui.drawCenteredScaled(batch,
+            "ESPACIO: continuar   |   ESC: menu",
+            worldWidth / 2f,
+            worldHeight / 2f - 40f,
+            1.3f);
+    }
+
+    /** Libera recursos específicos de pausa */
+    @Override
+    protected void unloadResources() {
+        if (bg != null) bg.dispose();
     }
 }
