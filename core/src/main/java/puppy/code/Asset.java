@@ -1,6 +1,8 @@
 package puppy.code;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 
 /**
@@ -16,10 +18,13 @@ public class Asset {
 
     // --- Atributos privados ---
     private Texture background;
+    private Music backgroundMusic;
     private Texture ground;
     private Texture tuboTex;
     private Texture[] birdFrames;
     private Texture[] enemyFrames;
+    private Sound birdHurt;
+    private Sound birdFlap;
 
     /**
      * Constructor privado → evita creación de múltiples instancias.
@@ -27,6 +32,9 @@ public class Asset {
      */
     private Asset() {
         background = new Texture("flappy/background.png");
+        setBackgroundMusic(Gdx.audio.newMusic(Gdx.files.internal("flappy_Sounds/gameplay_music.mp3")));
+
+        
         ground = new Texture("flappy/ground.png");
         tuboTex = new Texture("flappy/pipe.png");
 
@@ -35,6 +43,10 @@ public class Asset {
             new Texture("flappy/bird1.png"),
             new Texture("flappy/bird2.png")
         };
+        birdHurt = Gdx.audio.newSound(Gdx.files.internal("flappy_Sounds/hurt_music.mp3"));
+        setBirdFlap(Gdx.audio.newSound(Gdx.files.internal("flappy_Sounds/bird_jump.mp3")));
+
+        
 
         enemyFrames = new Texture[]{
             new Texture(Gdx.files.internal("flappy/enemy0.png")),
@@ -67,5 +79,30 @@ public class Asset {
         tuboTex.dispose();
         for (Texture t : birdFrames) t.dispose();
         for (Texture t : enemyFrames) t.dispose();
+        birdHurt.dispose();
     }
+
+	public Sound getBirdHurt() {
+		return birdHurt;
+	}
+
+	public void setBirdHurt(Sound birdHurt) {
+		this.birdHurt = birdHurt;
+	}
+
+	public Music getBackgroundMusic() {
+		return backgroundMusic;
+	}
+
+	public void setBackgroundMusic(Music backgroundMusic) {
+		this.backgroundMusic = backgroundMusic;
+	}
+
+	public Sound getBirdFlap() {
+		return birdFlap;
+	}
+
+	public void setBirdFlap(Sound birdFlap) {
+		this.birdFlap = birdFlap;
+	}
 }

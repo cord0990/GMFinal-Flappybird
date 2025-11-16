@@ -68,7 +68,6 @@ public abstract class BaseUIScreen implements Screen {
 
     @Override
     public void hide() {
-        dispose();
     }
 
     /** Libera recursos comunes + propios */

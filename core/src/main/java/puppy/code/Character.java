@@ -2,10 +2,13 @@ package puppy.code;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+
+import puppy.code.Screens.GameScreen;
 
 /**
  * Clase Character
@@ -21,6 +24,7 @@ public class Character {
     private int frameIndex = 0;     // Índice del frame actual
     private Rectangle bounds = new Rectangle(); // Área de colisión
     private boolean alive = true;   // Estado del jugador
+    private Sound birdFlap;
 
     // Vectores públicos (pos, vel, size) — usados por el motor físico y otras clases
     public Vector2 pos = new Vector2(0, 0);
@@ -32,17 +36,20 @@ public class Character {
      * @param x posición inicial en X
      * @param y posición inicial en Y
      * @param sprite frames de animación (desde Asset)
+     * @param sound 
      */
-    public Character(float x, float y, Texture[] sprite) {
+    public Character(float x, float y, Texture[] sprite, Sound sound) {
         this.pos.set(x, y);
         this.size.set(32, 32);
         this.frames = sprite;
         this.bounds.set(x, y, size.x, size.y);
+        this.birdFlap = sound;
     }
 
     /** Realiza el salto del personaje */
     public void flap() {
         vel.y = 260;
+        birdFlap.play();
     }
 
     /**
@@ -78,6 +85,12 @@ public class Character {
     public Rectangle getBounds() {
         return bounds;
     }
+    
+    public void fueraDePantalla(GameScreen screen, FlappyGameMenu game) {
+    	if (screen.getBird().pos.y <= 96 || screen.getBird().pos.y + 24 >= GameScreen.getWorldheight()) {
+            screen.setGameOver(true);
+            if (screen.getScore() > game.getHigherScore()) game.setHigherScore(screen.getScore());}
+        }
 
     /** Indica si el personaje sigue con vida */
     public boolean isAlive() {

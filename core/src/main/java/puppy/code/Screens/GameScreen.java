@@ -3,6 +3,7 @@ package puppy.code.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -32,6 +33,7 @@ public class GameScreen implements Screen {
 
     private Character bird;
     private Obstaculo obstaculos;
+    private Music bgMusic;
 
     private final float worldWidth = 288f;
     private final float gravity = -600f;
@@ -59,9 +61,10 @@ public class GameScreen implements Screen {
 
         // Uso del Singleton para recursos compartidos (GM2.1)
         assets = Asset.getInstancia();
-
+        
+        bgMusic = assets.getBackgroundMusic();
         // Entidades principales
-        bird = new Character(20, 350, assets.getBirdFrames());
+        bird = new Character(20, 350, assets.getBirdFrames(),assets.getBirdFlap());
         obstaculos = new Obstaculo(assets);
 
         score = 0;
@@ -82,8 +85,9 @@ public class GameScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
-        batch.draw(assets.getBackground(), 0, 0);
-
+        batch.draw(assets.getBackground(), 0, 0,worldWidth,worldHeight);
+        	
+        bgMusic.play();
         for (Colision p : obstaculos.getColisiones()) {
             p.draw(batch, worldHeight); // cada obstáculo dibuja según su propia estrategia (GM2.3)
         }
@@ -98,8 +102,9 @@ public class GameScreen implements Screen {
     private void update(float dt) {
         // --- Pausa ---
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            game.setScreen(new PauseScreen(game, this));
-            return;
+        	bgMusic.stop();
+            this.pause();
+            
         }
 
         // --- Si ya está en Game Over, salimos a GameOverScreen una sola vez ---
@@ -108,73 +113,40 @@ public class GameScreen implements Screen {
                 game.setHigherScore(score);
             }
             game.setScreen(new GameOverScreen(game, score));
+            bgMusic.stop();
             return;
         }
 
         // --- Movimiento del jugador ---
         bird.movimiento(dt, gravity);
+        
+        obstaculos.actualizarColision(dt,game,this);
 
-        // --- Obstáculos (Strategy con interfaz Colision GM2.3) ---
-        for (Colision p : obstaculos.getColisiones()) {
-            p.update(dt);
-
-            // Reciclaje cuando sale de pantalla
-            if (p.fueraDePantalla()) {
-                float max = 0;
-                for (Colision other : obstaculos.getColisiones())
-                    if (other.getX() > max) max = other.getX();
-                p.reposicionar(max + 200);
-            }
-
-            // Colisión con cualquier hitbox del obstáculo
-            boolean hit = false;
-            for (com.badlogic.gdx.math.Rectangle b : p.getBounds()) {
-                if (bird.getBounds().overlaps(b)) {
-                    hit = true;
-                    break;
-                }
-            }
-
-            if (hit) {
-                gameOver = true;
-                return;
-            }
-
-            // --- Lógica de puntaje ---
-            if (!gameOver &&
-                bird.pos.x > p.getX() + assets.getTuboTex().getWidth() / 2f &&
-                bird.pos.x - dt * p.getVelocidad() <= p.getX() + assets.getTuboTex().getWidth() / 2f) {
-
-                score++;
-
-                // Cambio a EndScreen al llegar al puntaje objetivo
-                if (score >= 100) {
-                    if (score > game.getHigherScore()) {
-                        game.setHigherScore(score);
-                    }
-                    game.setScreen(new EndScreen(game, score));
-                    return;
-                }
-            }
-        }
-
-        // --- Colisión con suelo o techo ---
-        if (bird.pos.y <= 96 || bird.pos.y + 24 >= worldHeight) {
-            gameOver = true;
-        }
+        bird.fueraDePantalla(this, game);
     }
 
     // --- Métodos del ciclo de vida de pantalla ---
     @Override public void resize(int width, int height) { }
-    @Override public void pause() { }
+    @Override public void pause() { 
+    	game.setScreen(new PauseScreen(game, this));
+        return;
+    }
     @Override public void resume() { }
     @Override public void hide() { /* se mantiene al pausar con PauseScreen */ }
 
     /** Libera solo recursos locales; Asset se libera en FlappyGameMenu */
     @Override
     public void dispose() {
-        if (batch != null) batch.dispose();
-        if (font != null) font.dispose();
+        if (batch != null) {
+            batch.dispose();
+            batch = null;
+        }
+        if (font != null) {
+            font.dispose();
+            font = null;
+        }
+        // Asegura que el siguiente show() re-inicialice todo
+        initialized = false;
     }
 
     // --- Getters utilizados por otras clases (Obstaculo, etc.) ---
@@ -183,4 +155,24 @@ public class GameScreen implements Screen {
     public void setScore(int score) { this.score = score; }
     public boolean getGameOver() { return gameOver; }
     public void setGameOver(boolean gameOver) { this.gameOver = gameOver; }
+	public static float getWorldheight() {
+		// TODO Auto-generated method stub
+		return worldHeight;
+	}
+
+	public Asset getAssets() {
+		return assets;
+	}
+
+	public void setAssets(Asset assets) {
+		this.assets = assets;
+	}
+
+	public Music getBgMusic() {
+		return bgMusic;
+	}
+
+	public void setBgMusic(Music bgMusic) {
+		this.bgMusic = bgMusic;
+	}
 }

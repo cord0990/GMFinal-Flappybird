@@ -4,8 +4,10 @@ import com.badlogic.gdx.math.Rectangle;
 import puppy.code.Colisiones.Colision;
 import puppy.code.Colisiones.Enemigo;
 import puppy.code.Colisiones.Tubo;
-import puppy.code.Screens.EndScreen;
 import puppy.code.Screens.GameScreen;
+import com.badlogic.gdx.audio.Sound;
+
+
 
 /**
  * Clase Obstaculo
@@ -42,6 +44,7 @@ public class Obstaculo {
      * Este método combina estrategias de movimiento y detección (GM2.3).
      */
     public void actualizarColision(float dt, FlappyGameMenu game, GameScreen screen) {
+    	Sound hurt = (Sound) screen.getAssets().getBirdHurt();
         boolean colisiona = false;
 
         for (Colision p : this.getColisiones()) {
@@ -59,12 +62,14 @@ public class Obstaculo {
             for (Rectangle b : p.getBounds()) {
                 if (screen.getBird().getBounds().overlaps(b)) {
                     colisiona = true;
+                    
                     break;
                 }
             }
 
             if (colisiona) {
                 screen.setGameOver(true);
+                hurt.play();
                 if (screen.getScore() > game.getHigherScore()) {
                     game.setHigherScore(screen.getScore());
                 }
@@ -79,14 +84,10 @@ public class Obstaculo {
                 if (centroAntes >= birdX && centroAhora < birdX) {
                     screen.setScore(screen.getScore() + 1);
 
-                    // Ejemplo: al llegar a cierta puntuación, se cambia de pantalla
-                    if (screen.getScore() >= 3) {
                         if (screen.getScore() > game.getHigherScore()) {
                             game.setHigherScore(screen.getScore());
                         }
-                        game.setScreen(new EndScreen(game, screen.getScore()));
-                        return;
-                    }
+                    
                 }
             }
         }
