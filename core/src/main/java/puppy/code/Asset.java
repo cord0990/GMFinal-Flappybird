@@ -25,6 +25,8 @@ public class Asset {
     private Texture[] enemyFrames;
     private Sound birdHurt;
     private Sound birdFlap;
+    private Texture gameOverScreen;
+    private Texture startScreen;
 
     /**
      * Constructor privado → evita creación de múltiples instancias.
@@ -34,6 +36,8 @@ public class Asset {
         background = new Texture("flappy/background.png");
         setBackgroundMusic(Gdx.audio.newMusic(Gdx.files.internal("flappy_Sounds/gameplay_music.mp3")));
 
+        gameOverScreen = new Texture("flappy/gameover_bg.png");
+        startScreen =new Texture("flappy/Pantalla_inicio.png");
         
         ground = new Texture("flappy/ground.png");
         tuboTex = new Texture("flappy/pipe.png");
@@ -104,5 +108,21 @@ public class Asset {
 
 	public void setBirdFlap(Sound birdFlap) {
 		this.birdFlap = birdFlap;
+	}
+
+	public Texture getGameOverScreen() {
+		return gameOverScreen;
+	}
+
+	public void setGameOverScreen(Texture gameOverScreen) {
+		this.gameOverScreen = gameOverScreen;
+	}
+
+	public Texture getStartScreen() {
+		return startScreen;
+	}
+
+	public void setStartScreen(Texture startScreen) {
+		this.startScreen = startScreen;
 	}
 }

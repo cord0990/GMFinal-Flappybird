@@ -24,7 +24,8 @@ import puppy.code.Colisiones.Colision;
 public class GameScreen implements Screen {
 
     // --- Constantes y atributos privados ---
-    public static final float worldHeight = 512f;
+    public static final float worldHeight = 600f;
+	public static final float worldWidth = 288f;
 
     private final FlappyGameMenu game;
     private SpriteBatch batch;
@@ -35,7 +36,6 @@ public class GameScreen implements Screen {
     private Obstaculo obstaculos;
     private Music bgMusic;
 
-    private final float worldWidth = 288f;
     private final float gravity = -600f;
 
     private int score = 0;
@@ -156,7 +156,7 @@ public class GameScreen implements Screen {
     public boolean getGameOver() { return gameOver; }
     public void setGameOver(boolean gameOver) { this.gameOver = gameOver; }
 	public static float getWorldheight() {
-		// TODO Auto-generated method stub
+		//Auto-generated method stub
 		return worldHeight;
 	}
 

@@ -9,7 +9,6 @@ import puppy.code.FlappyGameMenu;
 import puppy.code.Screens.UIBase.BaseUIScreen;
 
 /**
- * Clase PauseScreen
  * Pantalla de pausa del juego. Permite continuar o volver al menú principal.
  * Hereda de BaseUIScreen → aplica el patrón Template Method (GM2.2),
  * reutilizando el flujo común de pantallas de interfaz.
@@ -20,20 +19,24 @@ public class PauseScreen extends BaseUIScreen {
     private final FlappyGameMenu game;
     private final Screen previousGame; // referencia a GameScreen para reanudar
     private Texture bg;
-
-    /**
-     * Constructor: recibe el juego principal y la pantalla anterior.
-     */
+    
+ // Campos de layout UI
+    private float titleX, titleY;
+    private float instructionsX, instructionsY;
+    private float titleScale, instructionsScale;
+    
+    //Constructor: recibe el juego principal y la pantalla anterior.
+     
     public PauseScreen(FlappyGameMenu game, Screen previousGame) {
-        super(480f, 800f); // dimensiones lógicas de esta pantalla
+        super(); // dimensiones lógicas de esta pantalla
         this.game = game;
         this.previousGame = previousGame;
     }
 
-    /** Carga recursos específicos de la pantalla de pausa */
+    //Carga recursos específicos de la pantalla de pausa 
     @Override
     protected void loadResources() {
-        bg = new Texture(Gdx.files.internal("flappy/gameover_bg.png"));
+        bg = game.getAssets().getGameOverScreen();
     }
 
     /**
@@ -42,7 +45,7 @@ public class PauseScreen extends BaseUIScreen {
      *  - ESC: ir al menú principal.
      */
     @Override
-    protected void handleInput() {
+    protected void update(float dt) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || Gdx.input.justTouched()) {
             game.setScreen(previousGame); // reanuda la partida
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -50,31 +53,46 @@ public class PauseScreen extends BaseUIScreen {
         }
     }
 
-    /** Dibuja el contenido específico de la pantalla de pausa */
+    //Dibuja el contenido 
     @Override
-    protected void drawContent() {
+    protected void renderContent(float dt) {
+        
         // Fondo
         if (bg != null) {
             batch.setColor(1, 1, 1, 1);
             batch.draw(bg, 0, 0, worldWidth, worldHeight);
         }
 
-        // Textos
+        // Título
         ui.drawCenteredScaled(batch, "Pausa",
-            worldWidth / 2f,
-            worldHeight / 2f + 50f,
-            2.0f);
+            titleX, titleY, titleScale);
 
+        // Texto de instrucciones
         ui.drawCenteredScaled(batch,
             "ESPACIO: continuar   |   ESC: menu",
-            worldWidth / 2f,
-            worldHeight / 2f - 40f,
-            1.3f);
+            instructionsX, instructionsY, instructionsScale);
     }
 
-    /** Libera recursos específicos de pausa */
+
+    // Libera recursos específicos
     @Override
     protected void unloadResources() {
         if (bg != null) bg.dispose();
     }
+
+	@Override
+	protected void setupUI() {
+
+	    // --- Genera las medidas ---
+	    titleX = worldWidth / 2f;
+	    titleY = worldHeight / 2f + 20f;
+
+	    instructionsX = worldWidth / 2f;
+	    instructionsY = worldHeight / 2f - 40f;
+
+	    // --- Escalas ---
+	    titleScale = 2.3f;
+	    instructionsScale = 1.3f;
+	}
+
 }
