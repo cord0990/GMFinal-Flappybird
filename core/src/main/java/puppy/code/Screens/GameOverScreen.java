@@ -27,17 +27,35 @@ public class GameOverScreen extends BaseUIScreen {
 
     private int highScore;
     private Rectangle playBounds;
+    
+    //Vaariables labels
+    
+ // --- Variables UI (definidas en setupUI) ---
+    private float panelWidth;
+    private float panelHeight;
+    private float panelX;
+    private float panelY;
+
+    private String titleText;
+    private float titleY;
+    private float titleScale;
+
+    private float scoreLabelY;
+    private float highScoreLabelY;
+
+    private float birdX;
+    private float birdY;
+    private float birdW = 80;
+    private float birdH = 40;
+
 
     // Dimensiones del mundo (compatibles con GameScreen)
-    private static final float WORLD_WIDTH = 288f;
-    private static final float WORLD_HEIGHT = GameScreen.worldHeight;
-
     /**
      * Constructor: recibe la referencia del juego principal y el puntaje actual.
      * También gestiona el guardado del high score con Preferences.
      */
     public GameOverScreen(FlappyGameMenu game, int currentScore) {
-        super(WORLD_WIDTH, WORLD_HEIGHT); //--constructor de BaseUIScreen
+    	super(); //--constructor de BaseUIScreen
         this.game = game;
         this.currentScore = currentScore;
 
@@ -54,26 +72,17 @@ public class GameOverScreen extends BaseUIScreen {
     /** Carga de recursos gráficos específicos de GameOverScreen */
     @Override
     protected void loadResources() {
-        bg = new Texture(Gdx.files.internal("flappy/gameover_bg.png"));
-        birdTex = new Texture(Gdx.files.internal("flappy/bird0.png"));
-
-        // Configuración del botón PLAY
-        float buttonWidth = 110;
-        float buttonHeight = 40;
-        float panelHeight = 140;
-
-        float playX = WORLD_WIDTH / 2f - buttonWidth / 2f;
-        float playY = WORLD_HEIGHT / 2f - panelHeight / 2f - buttonHeight - 10;
-
-        playBounds = new Rectangle(playX, playY, buttonWidth, buttonHeight);
+        bg = game.getAssets().getGameOverScreen();
+        birdTex = game.getAssets().getBirdFrames()[0];
     }
+
 
     /**
      * Maneja el input del jugador.
      * Click o ESPACIO → crear nueva GameScreen (reinicio limpio).
      */
     @Override
-    protected void handleInput() {
+    protected void update(float dt) {
         if (Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             Vector3 touch = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             camera.unproject(touch);
@@ -84,55 +93,99 @@ public class GameOverScreen extends BaseUIScreen {
         }
     }
 
-    /** Dibuja el contenido específico de la pantalla GAME OVER */
+    //renderiza el contenido
     @Override
-    protected void drawContent() {
-        // Fondo
+    protected void renderContent(float dt) {
+
+        // -------- FONDO --------
         batch.setColor(1, 1, 1, 1);
         if (bg != null) {
-            batch.draw(bg, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+            batch.draw(bg, 0, 0, worldWidth, worldHeight);
         }
 
-        // Panel central
-        float panelWidth = WORLD_WIDTH - 40;
-        float panelHeight = 140;
-        float panelX = (WORLD_WIDTH - panelWidth) / 2f;
-        float panelY = WORLD_HEIGHT / 2f - panelHeight / 2f;
-
+        // -------- PANEL CENTRAL --------
         ui.drawPanel(batch, panelX, panelY, panelWidth, panelHeight, 0.55f);
-        ui.drawCenteredScaled(batch, "GAME OVER",
-            WORLD_WIDTH / 2f,
-            panelY + panelHeight - 15,
-            1.1f);
 
-        // SCORE
-        ui.drawText(batch, "SCORE", panelX + 20, panelY + panelHeight - 40, 0.8f);
+        // -------- TÍTULO --------
+        ui.drawCenteredScaled(
+            batch,
+            titleText,
+            worldWidth / 2f - 10f,   // tu offset original se mantiene
+            titleY,
+            titleScale
+        );
+
+        // -------- SCORE --------
+        ui.drawText(batch, "SCORE", panelX + 20, scoreLabelY, 0.8f);
         ui.drawText(batch, String.valueOf(currentScore),
-            panelX + panelWidth - 35, panelY + panelHeight - 40, 0.8f);
+            panelX + panelWidth - 35, scoreLabelY, 0.8f);
 
-        // HIGH SCORE
-        ui.drawText(batch, "HIGH SCORE", panelX + 20, panelY + panelHeight - 70, 0.8f);
+        // -------- HIGH SCORE --------
+        ui.drawText(batch, "HIGH SCORE", panelX + 20, highScoreLabelY, 0.8f);
         ui.drawText(batch, String.valueOf(highScore),
-            panelX + panelWidth - 35, panelY + panelHeight - 70, 0.8f);
+            panelX + panelWidth - 35, highScoreLabelY, 0.8f);
 
-        // Pájaro decorativo
+        // -------- PÁJARO DECORATIVO --------
         if (birdTex != null) {
-            batch.draw(birdTex, panelX + 15, panelY + 15, 34, 24);
+            batch.draw(birdTex, birdX, birdY, birdW, birdH);
         }
 
-        // Botón PLAY
-        ui.drawPanel(batch, playBounds.x, playBounds.y,
-            playBounds.width, playBounds.height, 0.65f);
-        ui.drawCenteredScaled(batch, "PLAY",
+        // -------- BOTÓN PLAY --------
+        ui.drawPanel(batch,
+            playBounds.x, playBounds.y,
+            playBounds.width, playBounds.height,
+            0.65f
+        );
+
+        ui.drawCenteredScaled(
+            batch,
+            "PLAY",
             playBounds.x + playBounds.width / 2f,
             playBounds.y + playBounds.height / 2f + 4,
-            0.9f);
+            0.9f
+        );
     }
 
-    /** Libera recursos específicos de esta pantalla */
+
+    //Libera recursos específicos de esta pantalla 
     @Override
     protected void unloadResources() {
-        if (bg != null) bg.dispose();
-        if (birdTex != null) birdTex.dispose();
+        // NO HACER NADA
+       
     }
+
+    //Asigna valores para el UI
+    @Override
+    protected void setupUI() {
+
+        // --- Panel central ---
+        panelWidth = worldWidth - 30;
+        panelHeight = 140;
+        panelX = (worldWidth - panelWidth) / 2f;
+        panelY = worldHeight / 2f - panelHeight / 2f;
+
+        // --- Título ---
+        titleText = "GAME OVER";
+        titleScale = 1.7f;
+        titleY = panelY + panelHeight - 26;
+
+        // --- Posiciones de textos SCORE & HIGH SCORE ---
+        scoreLabelY = panelY + panelHeight - 40;
+        highScoreLabelY = panelY + panelHeight - 70;
+
+        // --- Pájaro decorativo ---
+        birdX = panelX + 15;
+        birdY = panelY + 15;
+
+        // --- Botón PLAY (AQUÍ VA) ---
+        float buttonWidth = 175;
+        float buttonHeight = 40;
+
+        float playX = (worldWidth - buttonWidth) / 2f;
+        float playY = panelY - buttonHeight - 10;
+
+        playBounds = new Rectangle(playX, playY, buttonWidth, buttonHeight);
+    }
+
+
 }

@@ -9,7 +9,6 @@ import puppy.code.FlappyGameMenu;
 import puppy.code.Screens.UIBase.BaseUIScreen;
 
 /**
- * Clase MainMenuScreen
  * Pantalla inicial del juego: muestra instrucciones y permite iniciar la partida.
  * Hereda de BaseUIScreen → aplica el patrón Template Method (GM2.2),
  * reutilizando el flujo común de pantallas de UI.
@@ -19,76 +18,111 @@ public class MainMenuScreen extends BaseUIScreen {
     // --- Atributos específicos (GM1.6) ---
     private final FlappyGameMenu game;
     private Texture bg, pipeTex, birdTex;
+    
+    
+    // --- Variables a determinar ---
+    private String titleText, instruction1, instruction2, instruction3;
+    private float titleScale, titleY;
+    private float instruction1Y, instruction2Y, instruction3Y;
 
-    /**
-     * Constructor: recibe la referencia del juego principal.
-     * Define dimensiones lógicas de la pantalla mediante BaseUIScreen.
-     */
+    //Constructor: recibe la referencia del juego principal.
+    //Define dimensiones lógicas de la pantalla mediante BaseUIScreen.
+     
     public MainMenuScreen(FlappyGameMenu game) {
-        super(480f, 800f); // dimensiones para esta pantalla
+    	super(); //dimensiones por defecto en BASEUISCREEN
         this.game = game;
     }
 
-    /** Carga de recursos gráficos específicos del menú principal */
+    //Carga de recursos gráficos específicos del menú principal 
     @Override
     protected void loadResources() {
-        bg = new Texture(Gdx.files.internal("flappy/Pantalla_inicio.png"));
-        pipeTex = new Texture(Gdx.files.internal("flappy/pipe.png"));
-        birdTex = new Texture(Gdx.files.internal("flappy/bird0.png"));
+        bg = game.getAssets().getStartScreen();
+        pipeTex = game.getAssets().getTuboTex();
+        birdTex = game.getAssets().getBirdFrames()[1];
     }
 
-    /** Manejo de entrada: inicia una nueva partida */
+    //inicia una nueva partida 
     @Override
-    protected void handleInput() {
+    protected void update(float dt) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || Gdx.input.justTouched()) {
             game.setScreen(new GameScreen(game)); // nueva partida limpia
         }
     }
 
-    /** Dibuja el contenido específico del menú principal */
+    //Muestra el contenido en pantalla
     @Override
-    protected void drawContent() {
-        // Fondo
+    protected void renderContent(float dt) {
+
+        // --- FONDO ---
         if (bg != null) {
             batch.setColor(1, 1, 1, 1);
-            batch.draw(bg, 0, 0, worldWidth, worldHeight);
+            batch.draw(bg, 0, 0, worldWidth + 10, worldHeight);
         }
 
-        // Título
-        ui.drawCenteredScaled(batch, "¡Como Jugar!", worldWidth / 2f, worldHeight - 300f, 1.8f);
+        // --- TÍTULO ---
+        ui.drawCenteredScaled(
+            batch,
+            titleText,
+            worldWidth / 2f,
+            titleY,
+            titleScale
+        );
 
-        // Pájaro decorativo
+        // --- PÁJARO DECORATIVO ---
         if (birdTex != null) {
-            batch.setColor(1, 1, 1, 0.95f);
-            batch.draw(birdTex, 200f, worldHeight / 2f + 160f, 80f, 80f);
+            batch.setColor(1, 1, 1, 1f);
+            batch.draw(birdTex, 68f, worldHeight / 2f + 135f, 120f, 40f);
         }
 
-        // Tutorial visual
+        // --- TUTORIAL VISUAL ---
         batch.setColor(1, 1, 1, 1f);
+
         if (birdTex != null) {
-            batch.draw(birdTex, 80f, worldHeight / 2f - 90f, 48f, 34f);
+            batch.draw(birdTex, 120f, worldHeight / 2f - 80f, 70f, 30f);
         }
+
         if (pipeTex != null) {
-            batch.draw(pipeTex, worldWidth - 160f, worldHeight / 2f - 240f, 72f, 240f);
+            batch.draw(pipeTex, worldWidth - 160f, worldHeight / 2f - 240f, 60f, 240f);
         }
+
+        // Reset color por seguridad (siempre recomendable en LibGDX)
         batch.setColor(Color.WHITE);
 
-        // Textos de instrucciones
-        ui.drawCenteredScaled(batch, "Presiona espacio para saltar",
-            160f, worldHeight / 2f - 110f, 1.1f);
-        ui.drawCenteredScaled(batch, "Esquiva los tubos para sobrevivir",
-            worldWidth - 120f, worldHeight / 2f - 140f, 1.1f);
+        // Aplica las variables a partir de que se necesita
+        ui.drawCenteredScaled( batch,instruction1,180f,instruction1Y,1.4f
+        );
 
-        ui.drawCenteredScaled(batch,
-            "Presiona ESPACIO o CLICK para empezar",
-            worldWidth / 2f, 60f, 1.3f);
+        ui.drawCenteredScaled(batch,instruction2,worldWidth - 195f,instruction2Y,1.4f
+        );
+
+        ui.drawCenteredScaled(batch,instruction3,worldWidth / 2f,instruction3Y,1.4f
+        );
     }
 
-    /** Libera recursos específicos del menú principal */
+
+    //Libera recursos específicos, no es necesario.
     @Override
     protected void unloadResources() {
-        if (bg != null) bg.dispose();
-        if (pipeTex != null) pipeTex.dispose();
-        if (birdTex != null) birdTex.dispose();
     }
+
+    @Override
+    protected void setupUI() {
+        // Variables lógicas para el texto del título
+    	
+        // Titulo y sus valores
+        titleText = "¡Como Jugar!";
+        titleScale = 2f;
+        titleY = worldHeight - 250f;
+
+        // Texto en UI
+        instruction1 = "Presiona espacio para saltar";
+        instruction2 = "Esquiva los tubos para sobrevivir";
+        instruction3 = "Presiona ESPACIO o CLICK para empezar";
+
+        // Posiciones “lógicas”
+        instruction1Y = worldHeight / 2f - 110f;
+        instruction2Y = worldHeight / 2f - 111f;
+        instruction3Y = 60f;
+    }
+
 }
