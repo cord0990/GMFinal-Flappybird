@@ -15,17 +15,20 @@ import puppy.code.FlappyGameMenu;
 import puppy.code.Obstaculo;
 import puppy.code.Colisiones.Colision;
 
+// IMPORTANTE → importar las estrategias
+import puppy.code.DifficultyStrategy;
+import puppy.code.DynamicDifficulty;
+
 /**
  * Clase GameScreen
  * Controla la lógica principal del juego (movimiento, colisiones, puntaje, etc.).
- * Usa Asset como Singleton (GM2.1) y objetos Colision como estrategias de obstáculo (GM2.3).
- * Aplica encapsulamiento y modularidad en la estructura del juego (GM1.6).
+ * Usa Asset como Singleton (GM2.1) y DifficultyStrategy como patrón Strategy (GM2.3).
  */
 public class GameScreen implements Screen {
 
     // --- Constantes y atributos privados ---
     public static final float worldHeight = 600f;
-	public static final float worldWidth = 288f;
+    public static final float worldWidth = 288f;
 
     private final FlappyGameMenu game;
     private SpriteBatch batch;
@@ -44,9 +47,15 @@ public class GameScreen implements Screen {
 
     private Asset assets;
 
+    // *** Estrategia de dificultad (GM2.3) ***
+    private DifficultyStrategy difficulty;
+
     /** Constructor: recibe la referencia al juego principal */
     public GameScreen(final FlappyGameMenu game) {
         this.game = game;
+
+        // Dificultad inicial → Normal
+        this.difficulty = new DynamicDifficulty();
     }
 
     /** Inicializa recursos y entidades de la partida */
@@ -61,11 +70,14 @@ public class GameScreen implements Screen {
 
         // Uso del Singleton para recursos compartidos (GM2.1)
         assets = Asset.getInstancia();
-        
+
         bgMusic = assets.getBackgroundMusic();
+
         // Entidades principales
-        bird = new Character(20, 350, assets.getBirdFrames(),assets.getBirdFlap());
-        obstaculos = new Obstaculo(assets);
+        bird = new Character(20, 350, assets.getBirdFrames(), assets.getBirdFlap());
+
+        // Obstáculos creados usando la estrategia de dificultad
+        obstaculos = new Obstaculo(assets, difficulty);
 
         score = 0;
         gameOver = false;
@@ -77,7 +89,6 @@ public class GameScreen implements Screen {
     public void render(float delta) {
         update(delta);
 
-        // Si en update() se cambió de pantalla, no seguimos dibujando esta
         if (game.getScreen() != this) return;
 
         ScreenUtils.clear(0, 0, 0, 1);
@@ -86,10 +97,10 @@ public class GameScreen implements Screen {
 
         batch.begin();
         batch.draw(assets.getBackground(), 0, 0,worldWidth,worldHeight);
-        	
+
         bgMusic.play();
         for (Colision p : obstaculos.getColisiones()) {
-            p.draw(batch, worldHeight); // cada obstáculo dibuja según su propia estrategia (GM2.3)
+            p.draw(batch, worldHeight);
         }
 
         bird.draw(batch);
@@ -102,12 +113,11 @@ public class GameScreen implements Screen {
     private void update(float dt) {
         // --- Pausa ---
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-        	bgMusic.stop();
+            bgMusic.stop();
             this.pause();
-            
         }
 
-        // --- Si ya está en Game Over, salimos a GameOverScreen una sola vez ---
+        // --- Si ya está en Game Over ---
         if (gameOver) {
             if (score > game.getHigherScore()) {
                 game.setHigherScore(score);
@@ -119,20 +129,35 @@ public class GameScreen implements Screen {
 
         // --- Movimiento del jugador ---
         bird.movimiento(dt, gravity);
-        
+
         obstaculos.actualizarColision(dt,game,this);
+
+        // *** Cambio automático de dificultad (GM2.3) ***
+        actualizarDificultad();
 
         bird.fueraDePantalla(this, game);
     }
 
+    /**
+     * Cambia la estrategia de dificultad según el puntaje.
+     * Cuando el jugador llega a 15 puntos, cambia a HardDifficulty.
+     */
+    private void actualizarDificultad() {
+        if (difficulty instanceof DynamicDifficulty) {
+            ((DynamicDifficulty) difficulty).updateScore(score);
+            // Aplicar la nueva estrategia (velocidades/espaciado) a los obstáculos ya existentes:
+            obstaculos.setDifficulty(difficulty);
+        }
+    }
+
     // --- Métodos del ciclo de vida de pantalla ---
     @Override public void resize(int width, int height) { }
-    @Override public void pause() { 
-    	game.setScreen(new PauseScreen(game, this));
+    @Override public void pause() {
+        game.setScreen(new PauseScreen(game, this));
         return;
     }
     @Override public void resume() { }
-    @Override public void hide() { /* se mantiene al pausar con PauseScreen */ }
+    @Override public void hide() { }
 
     /** Libera solo recursos locales; Asset se libera en FlappyGameMenu */
     @Override
@@ -145,7 +170,6 @@ public class GameScreen implements Screen {
             font.dispose();
             font = null;
         }
-        // Asegura que el siguiente show() re-inicialice todo
         initialized = false;
     }
 
@@ -155,24 +179,23 @@ public class GameScreen implements Screen {
     public void setScore(int score) { this.score = score; }
     public boolean getGameOver() { return gameOver; }
     public void setGameOver(boolean gameOver) { this.gameOver = gameOver; }
-	public static float getWorldheight() {
-		//Auto-generated method stub
-		return worldHeight;
-	}
+    public static float getWorldheight() {
+        return worldHeight;
+    }
 
-	public Asset getAssets() {
-		return assets;
-	}
+    public Asset getAssets() {
+        return assets;
+    }
 
-	public void setAssets(Asset assets) {
-		this.assets = assets;
-	}
+    public void setAssets(Asset assets) {
+        this.assets = assets;
+    }
 
-	public Music getBgMusic() {
-		return bgMusic;
-	}
+    public Music getBgMusic() {
+        return bgMusic;
+    }
 
-	public void setBgMusic(Music bgMusic) {
-		this.bgMusic = bgMusic;
-	}
+    public void setBgMusic(Music bgMusic) {
+        this.bgMusic = bgMusic;
+    }
 }

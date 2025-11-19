@@ -37,4 +37,7 @@ public interface Colision {
 
     /** Devuelve las hitboxes asociadas (superior/inferior o principal) */
     Rectangle[] getBounds();
+
+    /** Permite cambiar la velocidad en tiempo de ejecución (usado por DifficultyStrategy GM2.3) */
+    void setVelocidad(float nuevaVelocidad);
 }

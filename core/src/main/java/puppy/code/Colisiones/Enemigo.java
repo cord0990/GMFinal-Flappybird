@@ -29,12 +29,21 @@ public class Enemigo implements Colision {
      * @param worldH altura lógica del mundo
      */
     public Enemigo(Texture[] frames, float anchoBase, float startX, float worldH) {
+        // Constructor original: usa velocidad por defecto (110f)
+        this(frames, anchoBase, startX, worldH, 110f);
+    }
+
+    /**
+     * Constructor del enemigo volador con velocidad parametrizable
+     * (útil para DifficultyStrategy en GM2.3).
+     */
+    public Enemigo(Texture[] frames, float anchoBase, float startX, float worldH, float velocidad) {
         this.frames = frames;
         this.width = anchoBase * 0.7f;
         this.height = anchoBase * 0.7f;
         this.x = startX;
         this.y = worldH / 2f; // posición base al centro de pantalla
-        this.velocidad = 110f;
+        this.velocidad = velocidad;
         this.tiempo = 0;
 
         // Ajuste fino de hitbox (más pequeña que el sprite real)
@@ -101,10 +110,19 @@ public class Enemigo implements Colision {
     // --- Getters públicos (encapsulamiento GM1.6) ---
     @Override
     public float getX() { return bounds[0].x; }
+
     @Override
     public float getVelocidad() { return velocidad; }
+
     @Override
     public Rectangle[] getBounds() { return bounds; }
+
     @Override
     public float getAncho() { return bounds[0].width; }
+
+    /** Permite cambiar la velocidad en tiempo de ejecución (Strategy de dificultad) */
+    @Override
+    public void setVelocidad(float nuevaVelocidad) {
+        this.velocidad = nuevaVelocidad;
+    }
 }

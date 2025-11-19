@@ -22,10 +22,10 @@ public class Tubo implements Colision {
     private Texture textura;             // textura del tubo
     private final Rectangle[] bounds = new Rectangle[2]; // hitboxes: [0]=superior, [1]=inferior
     private Vector2 size = new Vector2(); // tamaño del sprite
+    private float worldHeight;           // alto lógico del mundo (para evitar 512 "quemado")
 
     // Ajuste fino de la hitbox superior
     private static final float TOP_LIFT = 14f;
-
     /**
      * Constructor del tubo.
      * @param pipeTex textura del tubo
@@ -33,9 +33,20 @@ public class Tubo implements Colision {
      * @param worldHeight alto del mundo del juego
      */
     public Tubo(Texture pipeTex, float startX, float worldHeight) {
+        // Constructor original: usa velocidad por defecto (120f)
+        this(pipeTex, startX, worldHeight, 120f);
+    }
+
+    /**
+     * Constructor del tubo con velocidad parametrizable
+     * (útil para DifficultyStrategy en GM2.3).
+     */
+    public Tubo(Texture pipeTex, float startX, float worldHeight, float velocidad) {
         this.textura = pipeTex;
         this.xInicio = startX;
         this.size = new Vector2(pipeTex.getWidth(), pipeTex.getHeight());
+        this.velocidad = velocidad;
+        this.worldHeight = worldHeight;
         bounds[0] = new Rectangle();
         bounds[1] = new Rectangle();
         randomizeGap(worldHeight);
@@ -73,7 +84,7 @@ public class Tubo implements Colision {
     @Override
     public void update(float dt) {
         xInicio -= velocidad * dt;
-        updateRects(512);
+        updateRects(worldHeight);
     }
 
     /** Indica si el tubo ya salió completamente de la pantalla */
@@ -86,8 +97,8 @@ public class Tubo implements Colision {
     @Override
     public void reposicionar(float newX) {
         xInicio = newX;
-        randomizeGap(512);
-        updateRects(512);
+        randomizeGap(worldHeight);
+        updateRects(worldHeight);
     }
 
     /** Dibuja el par de tubos (superior e inferior) */
@@ -106,9 +117,21 @@ public class Tubo implements Colision {
     // --- Getters públicos (encapsulamiento GM1.6) ---
     @Override
     public float getX() { return xInicio; }
+
+    @Override
     public float getVelocidad() { return velocidad; }
+
+    @Override
     public Rectangle[] getBounds() { return bounds; }
+
     public Vector2 getSize() { return size; }
+
     @Override
     public float getAncho() { return size.x; }
+
+    /** Permite cambiar la velocidad en tiempo de ejecución (Strategy de dificultad) */
+    @Override
+    public void setVelocidad(float nuevaVelocidad) {
+        this.velocidad = nuevaVelocidad;
+    }
 }

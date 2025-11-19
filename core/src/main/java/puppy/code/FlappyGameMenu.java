@@ -21,7 +21,7 @@ public class FlappyGameMenu extends Game {
     private int higherScore;
     private Asset assets; // Acceso centralizado a los recursos del juego
 
-    /** Método principal: inicializa el juego y su primera pantalla */
+    /** Metodo principal: inicializa el juego y su primera pantalla */
     @Override
     public void create() {
         batch = new SpriteBatch();
