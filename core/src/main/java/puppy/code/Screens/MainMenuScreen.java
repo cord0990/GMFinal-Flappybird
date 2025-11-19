@@ -37,7 +37,7 @@ public class MainMenuScreen extends BaseUIScreen {
     @Override
     protected void loadResources() {
         bg = game.getAssets().getStartScreen();
-        pipeTex = game.getAssets().getTuboTex();
+        pipeTex = game.getAssets().getPipeMain();
         birdTex = game.getAssets().getBirdFrames()[1];
     }
 
@@ -78,11 +78,12 @@ public class MainMenuScreen extends BaseUIScreen {
         batch.setColor(1, 1, 1, 1f);
 
         if (birdTex != null) {
-            batch.draw(birdTex, 120f, worldHeight / 2f - 80f, 70f, 30f);
+            batch.draw(birdTex, 120f, worldHeight / 2f - 90f, 100f, 34f);
         }
 
         if (pipeTex != null) {
-            batch.draw(pipeTex, worldWidth - 160f, worldHeight / 2f - 240f, 60f, 240f);
+        	batch.draw(pipeTex, worldWidth - 230f, worldHeight / 2f - 100 , 
+        	           pipeTex.getWidth(), pipeTex.getHeight());
         }
 
         // Reset color por seguridad (siempre recomendable en LibGDX)
@@ -95,7 +96,7 @@ public class MainMenuScreen extends BaseUIScreen {
         ui.drawCenteredScaled(batch,instruction2,worldWidth - 195f,instruction2Y,1.4f
         );
 
-        ui.drawCenteredScaled(batch,instruction3,worldWidth / 2f,instruction3Y,1.4f
+        ui.drawCenteredScaled(batch,instruction3,worldWidth / 2f + 10,instruction3Y,1.4f
         );
     }
 
@@ -111,12 +112,12 @@ public class MainMenuScreen extends BaseUIScreen {
     	
         // Titulo y sus valores
         titleText = "¡Como Jugar!";
-        titleScale = 2f;
-        titleY = worldHeight - 250f;
+        titleScale = 2.3f;
+        titleY = worldHeight - 255f;
 
         // Texto en UI
         instruction1 = "Presiona espacio para saltar";
-        instruction2 = "Esquiva los tubos para sobrevivir";
+        instruction2 = "Esquiva los obstaculos para sobrevivir";
         instruction3 = "Presiona ESPACIO o CLICK para empezar";
 
         // Posiciones “lógicas”

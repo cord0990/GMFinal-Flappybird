@@ -45,8 +45,8 @@ public class GameOverScreen extends BaseUIScreen {
 
     private float birdX;
     private float birdY;
-    private float birdW = 80;
-    private float birdH = 40;
+    private float birdW = 60;
+    private float birdH = 30;
 
 
     // Dimensiones del mundo (compatibles con GameScreen)
@@ -116,14 +116,14 @@ public class GameOverScreen extends BaseUIScreen {
         );
 
         // -------- SCORE --------
-        ui.drawText(batch, "SCORE", panelX + 20, scoreLabelY, 0.8f);
+        ui.drawText(batch, "SCORE", panelX + 30, scoreLabelY, 1.1f);
         ui.drawText(batch, String.valueOf(currentScore),
-            panelX + panelWidth - 35, scoreLabelY, 0.8f);
+            panelX + panelWidth - 90, scoreLabelY, 1.1f);
 
         // -------- HIGH SCORE --------
-        ui.drawText(batch, "HIGH SCORE", panelX + 20, highScoreLabelY, 0.8f);
+        ui.drawText(batch, "HIGH SCORE", panelX + 30, highScoreLabelY, 1.1f);
         ui.drawText(batch, String.valueOf(highScore),
-            panelX + panelWidth - 35, highScoreLabelY, 0.8f);
+            panelX + panelWidth - 90, highScoreLabelY, 1.1f);
 
         // -------- PÁJARO DECORATIVO --------
         if (birdTex != null) {
@@ -140,9 +140,9 @@ public class GameOverScreen extends BaseUIScreen {
         ui.drawCenteredScaled(
             batch,
             "PLAY",
-            playBounds.x + playBounds.width / 2f,
-            playBounds.y + playBounds.height / 2f + 4,
-            0.9f
+            playBounds.x + playBounds.width / 2f -2,
+            playBounds.y + playBounds.height / 2f +1,
+            1.2f
         );
     }
 
@@ -159,30 +159,30 @@ public class GameOverScreen extends BaseUIScreen {
     protected void setupUI() {
 
         // --- Panel central ---
-        panelWidth = worldWidth - 30;
-        panelHeight = 140;
+        panelWidth = worldWidth - 80;
+        panelHeight = 120;
         panelX = (worldWidth - panelWidth) / 2f;
         panelY = worldHeight / 2f - panelHeight / 2f;
 
         // --- Título ---
         titleText = "GAME OVER";
         titleScale = 1.7f;
-        titleY = panelY + panelHeight - 26;
+        titleY = panelY + panelHeight - 18;
 
         // --- Posiciones de textos SCORE & HIGH SCORE ---
         scoreLabelY = panelY + panelHeight - 40;
-        highScoreLabelY = panelY + panelHeight - 70;
+        highScoreLabelY = panelY + panelHeight - 60;
 
         // --- Pájaro decorativo ---
-        birdX = panelX + 15;
-        birdY = panelY + 15;
+        birdX = panelX + 20;
+        birdY = panelY + 10;
 
         // --- Botón PLAY (AQUÍ VA) ---
         float buttonWidth = 175;
-        float buttonHeight = 40;
+        float buttonHeight = 30;
 
         float playX = (worldWidth - buttonWidth) / 2f;
-        float playY = panelY - buttonHeight - 10;
+        float playY = panelY - buttonHeight - 20;
 
         playBounds = new Rectangle(playX, playY, buttonWidth, buttonHeight);
     }

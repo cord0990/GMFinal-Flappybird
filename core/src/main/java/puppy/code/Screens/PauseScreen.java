@@ -84,15 +84,15 @@ public class PauseScreen extends BaseUIScreen {
 	protected void setupUI() {
 
 	    // --- Genera las medidas ---
-	    titleX = worldWidth / 2f;
-	    titleY = worldHeight / 2f + 20f;
+	    titleX = worldWidth / 2f - 5;
+	    titleY = worldHeight / 2f + 10f;
 
 	    instructionsX = worldWidth / 2f;
 	    instructionsY = worldHeight / 2f - 40f;
 
 	    // --- Escalas ---
-	    titleScale = 2.3f;
-	    instructionsScale = 1.3f;
+	    titleScale = 2.5f;
+	    instructionsScale = 1.2f;
 	}
 
 }

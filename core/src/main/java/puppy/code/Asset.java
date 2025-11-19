@@ -27,6 +27,7 @@ public class Asset {
     private Sound birdFlap;
     private Texture gameOverScreen;
     private Texture startScreen;
+    private Texture pipeMain;
 
     /**
      * Constructor privado → evita creación de múltiples instancias.
@@ -38,6 +39,7 @@ public class Asset {
 
         gameOverScreen = new Texture("flappy/gameover_bg.png");
         startScreen =new Texture("flappy/Pantalla_inicio.png");
+        setPipeMain(new Texture("flappy/pipeMain.png"));
         
         ground = new Texture("flappy/ground.png");
         tuboTex = new Texture("flappy/pipe.png");
@@ -124,5 +126,13 @@ public class Asset {
 
 	public void setStartScreen(Texture startScreen) {
 		this.startScreen = startScreen;
+	}
+
+	public Texture getPipeMain() {
+		return pipeMain;
+	}
+
+	public void setPipeMain(Texture pipeMain) {
+		this.pipeMain = pipeMain;
 	}
 }
