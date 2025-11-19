@@ -130,6 +130,6 @@ public abstract class BaseUIScreen implements Screen {
     protected abstract void renderContent(float delta);
 
     //Liberar recursos específicos de la pantalla (texturas, etc.). 
-    protected abstract void unloadResources();
+    protected void unloadResources() {};
 }
 

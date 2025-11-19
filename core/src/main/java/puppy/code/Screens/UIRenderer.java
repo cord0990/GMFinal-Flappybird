@@ -21,15 +21,19 @@ public class UIRenderer {
     private final Texture white1x1; // Textura base 1x1 blanca para paneles y fondos translúcidos
     private final BitmapFont font;  // Fuente común para toda la interfaz
 
-    /** Constructor: genera una textura blanca y una fuente estándar */
     public UIRenderer() {
+
         Pixmap pm = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pm.setColor(Color.WHITE);
         pm.fill();
         white1x1 = new Texture(pm);
         pm.dispose();
-        font = new BitmapFont(); // fuente por defecto de LibGDX
+
+        font = new BitmapFont();
+        //Deja el font legible
+        font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
     }
+
 
     // --- Métodos de dibujo reutilizables ---
 
