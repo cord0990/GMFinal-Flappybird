@@ -4,36 +4,44 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-
 import puppy.code.FlappyGameMenu;
 import puppy.code.Screens.UIBase.BaseUIScreen;
 
 /**
- * Pantalla inicial del juego: muestra instrucciones y permite iniciar la partida.
- * Hereda de BaseUIScreen → aplica el patrón Template Method (GM2.2),
- * reutilizando el flujo común de pantallas de UI.
+ * Clase MainMenuScreen
+ *
+ * Representa la pantalla inicial del juego, donde se muestran instrucciones
+ * básicas y se permite iniciar una nueva partida.
+ *
+ * Hereda de BaseUIScreen, aprovechando la estructura común definida mediante
+ * el Template Method (GM2.2) para el ciclo "cargar → actualizar → dibujar".
+ * Esto asegura uniformidad visual y de comportamiento entre todas las pantallas UI.
  */
 public class MainMenuScreen extends BaseUIScreen {
 
-    // --- Atributos específicos (GM1.6) ---
+    // --- Recursos y atributos específicos del menú (encapsulamiento GM1.6) ---
     private final FlappyGameMenu game;
     private Texture bg, pipeTex, birdTex;
-    
-    
-    // --- Variables a determinar ---
+
+
+    // Textos y parámetros visuales del UI
     private String titleText, instruction1, instruction2, instruction3;
     private float titleScale, titleY;
     private float instruction1Y, instruction2Y, instruction3Y;
 
-    //Constructor: recibe la referencia del juego principal.
-    //Define dimensiones lógicas de la pantalla mediante BaseUIScreen.
-     
+    /**
+     * Constructor de la pantalla de menú.
+     * @param game referencia a la instancia principal del juego.
+     */
     public MainMenuScreen(FlappyGameMenu game) {
-    	super(); //dimensiones por defecto en BASEUISCREEN
+    	super(); // define dimensiones base desde BaseUIScreen (Template Method GM2.2)
         this.game = game;
     }
 
-    //Carga de recursos gráficos específicos del menú principal 
+    /**
+     * Carga los recursos gráficos exclusivos del menú de inicio.
+     * Este metodo se llama automáticamente como parte del Template Method.
+     */
     @Override
     protected void loadResources() {
         bg = game.getAssets().getStartScreen();
@@ -41,7 +49,10 @@ public class MainMenuScreen extends BaseUIScreen {
         birdTex = game.getAssets().getBirdFrames()[1];
     }
 
-    //inicia una nueva partida 
+    /**
+     * Maneja la entrada del usuario:
+     *  - Presionar SPACE o hacer clic inicia una nueva partida.
+     */
     @Override
     protected void update(float dt) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || Gdx.input.justTouched()) {
@@ -49,17 +60,20 @@ public class MainMenuScreen extends BaseUIScreen {
         }
     }
 
-    //Muestra el contenido en pantalla
+    /**
+     * Dibuja todos los elementos visibles del menú.
+     * Este metodo forma parte de render() en el Template Method (GM2.2).
+     */
     @Override
     protected void renderContent(float dt) {
 
-        // --- FONDO ---
+        // Fondo principal
         if (bg != null) {
             batch.setColor(1, 1, 1, 1);
             batch.draw(bg, 0, 0, worldWidth + 10, worldHeight);
         }
 
-        // --- TÍTULO ---
+        // Título principal
         ui.drawCenteredScaled(
             batch,
             titleText,
@@ -68,13 +82,13 @@ public class MainMenuScreen extends BaseUIScreen {
             titleScale
         );
 
-        // --- PÁJARO DECORATIVO ---
+        // Elemento decorativo (pájaro)
         if (birdTex != null) {
             batch.setColor(1, 1, 1, 1f);
             batch.draw(birdTex, 68f, worldHeight / 2f + 135f, 120f, 40f);
         }
 
-        // --- TUTORIAL VISUAL ---
+        // Mini tutorial visual (pájaro saltando + obstáculo)
         batch.setColor(1, 1, 1, 1f);
 
         if (birdTex != null) {
@@ -82,22 +96,17 @@ public class MainMenuScreen extends BaseUIScreen {
         }
 
         if (pipeTex != null) {
-        	batch.draw(pipeTex, worldWidth - 230f, worldHeight / 2f - 100 , 
+        	batch.draw(pipeTex, worldWidth - 230f, worldHeight / 2f - 100 ,
         	           pipeTex.getWidth(), pipeTex.getHeight());
         }
 
         // Reset color por seguridad (siempre recomendable en LibGDX)
         batch.setColor(Color.WHITE);
 
-        // Aplica las variables a partir de que se necesita
-        ui.drawCenteredScaled( batch,instruction1,180f,instruction1Y,1.4f
-        );
-
-        ui.drawCenteredScaled(batch,instruction2,worldWidth - 195f,instruction2Y,1.4f
-        );
-
-        ui.drawCenteredScaled(batch,instruction3,worldWidth / 2f + 10,instruction3Y,1.4f
-        );
+        // Textos explicativos
+        ui.drawCenteredScaled( batch,instruction1,180f,instruction1Y,1.4f);
+        ui.drawCenteredScaled(batch,instruction2,worldWidth - 195f,instruction2Y,1.4f);
+        ui.drawCenteredScaled(batch,instruction3,worldWidth / 2f + 10,instruction3Y,1.4f);
     }
 
 
@@ -106,21 +115,24 @@ public class MainMenuScreen extends BaseUIScreen {
     protected void unloadResources() {
     }
 
+    /**
+     * Configura el contenido textual del menú y sus posiciones.
+     * Ejecutado una vez al cargar la pantalla.
+     */
     @Override
     protected void setupUI() {
-        // Variables lógicas para el texto del título
-    	
-        // Titulo y sus valores
+
+        // Título principal del menú
         titleText = "¡Como Jugar!";
         titleScale = 2.3f;
         titleY = worldHeight - 255f;
 
-        // Texto en UI
+        // Instrucciones del usuario
         instruction1 = "Presiona espacio para saltar";
         instruction2 = "Esquiva los obstaculos para sobrevivir";
         instruction3 = "Presiona ESPACIO o CLICK para empezar";
 
-        // Posiciones “lógicas”
+        // Posiciones relativas para mantener coherencia visual
         instruction1Y = worldHeight / 2f - 110f;
         instruction2Y = worldHeight / 2f - 111f;
         instruction3Y = 60f;

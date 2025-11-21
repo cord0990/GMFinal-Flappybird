@@ -7,36 +7,37 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-
 import puppy.code.Screens.GameScreen;
 
 /**
  * Clase Character
  * Representa al jugador (pájaro) controlado por el usuario.
- * Aplica principios OO: encapsulamiento y responsabilidad única → GM1.6.
- * Además, puede actuar como contexto para estrategias de movimiento → GM2.3.
+ * Aplica encapsulamiento y responsabilidad única para manejar
+ * animación, física y colisiones del jugador (GM1.6).
+ * Su metodo movimiento permite integrar cambios de control
+ * mediante estrategias externas para el patrón Strategy (GM2.3).
  */
 public class Character {
 
     // --- Atributos privados (GM1.6) ---
-    private Texture[] frames;       // Sprites del personaje (animación)
+    private Texture[] frames;       // Animación del personaje
     private float animTimer = 0f;   // Control del tiempo de animación
     private int frameIndex = 0;     // Índice del frame actual
-    private Rectangle bounds = new Rectangle(); // Área de colisión
+    private Rectangle bounds = new Rectangle(); // Hitbox del jugador
     private boolean alive = true;   // Estado del jugador
-    private Sound birdFlap;
+    private Sound birdFlap;         // Sonido al aletear
 
-    // Vectores públicos (pos, vel, size) — usados por el motor físico y otras clases
-    public Vector2 pos = new Vector2(0, 0);
-    public Vector2 vel = new Vector2(0, 0);
-    public Vector2 size = new Vector2(32, 32);
+    // --- Atributos públicos usados por sistemas externos ---
+    public Vector2 pos = new Vector2(0, 0); // Posición en 2D
+    public Vector2 vel = new Vector2(0, 0); // Velocidad actual
+    public Vector2 size = new Vector2(32, 32); // Tamaño del sprite
 
     /**
      * Constructor del personaje principal.
      * @param x posición inicial en X
      * @param y posición inicial en Y
      * @param sprite frames de animación (desde Asset)
-     * @param sound 
+     * @param sound
      */
     public Character(float x, float y, Texture[] sprite, Sound sound) {
         this.pos.set(x, y);
@@ -46,21 +47,23 @@ public class Character {
         this.birdFlap = sound;
     }
 
-    /** Realiza el salto del personaje */
+    /** Ejecuta el salto del personaje y reproduce el sonido */
     public void flap() {
         vel.y = 260;
         birdFlap.play();
     }
 
     /**
-     * Aplica gravedad y actualiza animación (física del personaje)
+     * Actualiza la física del personaje:
+     * aplica gravedad, movimiento y calcula el cambio de frames.
      * @param dt tiempo transcurrido
      * @param gravity constante de gravedad vertical
      */
     public void presionAtmosferica(float dt, float gravity) {
-        vel.y += gravity * dt;              // aceleración hacia abajo
-        pos.add(vel.x * dt, vel.y * dt);    // movimiento físico
+        vel.y += gravity * dt;              // Aceleración vertical
+        pos.add(vel.x * dt, vel.y * dt);    // Movimiento según velocidad
 
+        // Control de animación (velocidad del aleteo)
         animTimer += dt;
         if (animTimer > 0.12f) {            // controla frecuencia de aleteo
             animTimer = 0f;
@@ -71,8 +74,9 @@ public class Character {
     }
 
     /**
-     * Movimiento principal controlado por el jugador
-     * Aplica la estrategia de control actual → GM2.3 (Strategy Pattern)
+     * Movimiento principal del jugador.
+     * Puede ser reemplazado por estrategias de control
+     * Usado para el patrón Strategy (GM2.3).
      */
     public void movimiento(float dt, float gravity) {
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || Gdx.input.justTouched()) {
@@ -81,28 +85,32 @@ public class Character {
         this.presionAtmosferica(dt, gravity);
     }
 
-    /** Devuelve la hitbox actual para verificar colisiones */
+    /** Devuelve la hitbox actual para detección de colisiones */
     public Rectangle getBounds() {
         return bounds;
     }
-    
+
+    /**
+     * Detecta si el personaje sale de los límites verticales.
+     * En caso de hacerlo, activa la pantalla Game Over.
+     */
     public void fueraDePantalla(GameScreen screen, FlappyGameMenu game) {
     	if (screen.getBird().pos.y <= 96 || screen.getBird().pos.y + 24 >= GameScreen.getWorldheight()) {
             screen.setGameOver(true);
             if (screen.getScore() > game.getHigherScore()) game.setHigherScore(screen.getScore());}
         }
 
-    /** Indica si el personaje sigue con vida */
+    /** Indica si el personaje sigue vivo */
     public boolean isAlive() {
         return alive;
     }
 
-    /** Dibuja el personaje en pantalla con el frame animado actual */
+    /** Dibuja el sprite del personaje con el frame animado actual */
     public void draw(SpriteBatch batch) {
         batch.draw(frames[frameIndex], pos.x, pos.y);
     }
 
-    /** Reinicia la posición y velocidad del personaje */
+    /** Restablece la posición y velocidad del jugador */
     public void reset(float y) {
         pos.set(80, y);
         vel.set(0, 0);

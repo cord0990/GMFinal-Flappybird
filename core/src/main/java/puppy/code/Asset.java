@@ -7,9 +7,9 @@ import com.badlogic.gdx.graphics.Texture;
 
 /**
  * Clase Asset
- * Encargada de cargar y administrar todos los recursos gráficos del juego (texturas).
- * Aplica el patrón Singleton → evidencia GM2.1.
- * Utiliza encapsulamiento (atributos privados + getters/setters) → evidencia GM1.6.
+ * Administra la carga y el acceso a todos los recursos multimedia del juego.
+ * Implementa el patrón Singleton para asegurar una única instancia global (GM2.1).
+ * Utiliza encapsulamiento mediante atributos privados y métodos de acceso (GM1.6).
  */
 public class Asset {
 
@@ -30,8 +30,8 @@ public class Asset {
     private Texture pipeMain;
 
     /**
-     * Constructor privado → evita creación de múltiples instancias.
-     * Carga los recursos gráficos desde la carpeta "flappy/".
+     * Constructor privado: impide la creación externa de instancias.
+     * Carga todas las texturas y sonidos desde la carpeta de recursos.
      */
     private Asset() {
         background = new Texture("flappy/background.png");
@@ -40,7 +40,7 @@ public class Asset {
         gameOverScreen = new Texture("flappy/gameover_bg.png");
         startScreen =new Texture("flappy/Pantalla_inicio.png");
         setPipeMain(new Texture("flappy/pipeMain.png"));
-        
+
         ground = new Texture("flappy/ground.png");
         tuboTex = new Texture("flappy/pipe.png");
 
@@ -52,7 +52,7 @@ public class Asset {
         birdHurt = Gdx.audio.newSound(Gdx.files.internal("flappy_Sounds/hurt_music.mp3"));
         setBirdFlap(Gdx.audio.newSound(Gdx.files.internal("flappy_Sounds/bird_jump.mp3")));
 
-        
+
 
         enemyFrames = new Texture[]{
             new Texture(Gdx.files.internal("flappy/enemy0.png")),
@@ -62,7 +62,8 @@ public class Asset {
     }
 
     /**
-     * Devuelve la instancia única de la clase (patrón Singleton GM2.1)
+     * Devuelve la instancia única del recurso Asset.
+     * Si no existe, la crea (lazy initialization).
      */
     public static Asset getInstancia() {
         if (instancia == null) {
@@ -71,14 +72,17 @@ public class Asset {
         return instancia;
     }
 
-    // --- Métodos de acceso (encapsulamiento GM1.6) ---
+    // --- Getters y setters (encapsulamiento GM1.6) ---
     public Texture getBackground() { return background; }
     public Texture getGround() { return ground; }
     public Texture getTuboTex() { return tuboTex; }
     public Texture[] getBirdFrames() { return birdFrames; }
     public Texture[] getEnemyFrames() { return enemyFrames; }
 
-    /** Libera los recursos cargados al finalizar el juego */
+    /**
+     * Libera todos los recursos cargados en memoria.
+     * Debe llamarse al cerrar la aplicación.
+     */
     public void dispose() {
         background.dispose();
         ground.dispose();

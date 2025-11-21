@@ -12,9 +12,16 @@ import puppy.code.Screens.UIBase.BaseUIScreen;
 
 /**
  * Clase GameOverScreen
- * Muestra la pantalla de derrota del jugador y el puntaje obtenido.
+ *
+ * Despliega la pantalla final cuando el jugador pierde. Muestra el puntaje
+ * obtenido, el récord histórico y un botón para reiniciar la partida.
+ *
  * Hereda de BaseUIScreen → aplica el patrón Template Method (GM2.2),
- * definiendo solo la lógica específica de carga, dibujo e input.
+ * ya que reutiliza el flujo común de carga, actualización, renderización
+ * y liberación de recursos definido en la clase base.
+ *
+ * Además, gestiona datos persistentes utilizando Preferences de LibGDX
+ * para almacenar el puntaje máximo alcanzado.
  */
 public class GameOverScreen extends BaseUIScreen {
 
@@ -27,9 +34,9 @@ public class GameOverScreen extends BaseUIScreen {
 
     private int highScore;
     private Rectangle playBounds;
-    
+
     //Vaariables labels
-    
+
  // --- Variables UI (definidas en setupUI) ---
     private float panelWidth;
     private float panelHeight;
@@ -147,11 +154,11 @@ public class GameOverScreen extends BaseUIScreen {
     }
 
 
-    //Libera recursos específicos de esta pantalla 
+    //Libera recursos específicos de esta pantalla
     @Override
     protected void unloadResources() {
         // NO HACER NADA
-       
+
     }
 
     //Asigna valores para el UI
@@ -186,6 +193,4 @@ public class GameOverScreen extends BaseUIScreen {
 
         playBounds = new Rectangle(playX, playY, buttonWidth, buttonHeight);
     }
-
-
 }

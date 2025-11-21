@@ -8,19 +8,20 @@ import puppy.code.DifficultyStrategy;
 
 /**
  * Clase Enemigo
- * Representa un enemigo volador con animación y trayectoria sinusoidal.
- * Implementa la interfaz Colision → evidencia del punto GM1.5.
- * Aplica encapsulamiento y movimiento independiente → evidencia GM1.6 y GM2.3 (Strategy).
+ * Representa un enemigo volador con animación y movimiento sinusoidal.
+ * Implementa Colision → evidencia del polimorfismo (GM1.5).
+ * Aplica encapsulamiento y comportamiento independiente.
+ * Integra ajustes dinámicos de dificultad para el patrón Strategy (GM2.3).
  */
 public class Enemigo implements Colision {
 
     // --- Atributos privados (encapsulamiento GM1.6) ---
-    private Texture[] frames;   // conjunto de sprites de animación
+    private Texture[] frames;   // Animación del enemigo
     private float x, y;         // posición base del enemigo
     private float width, height;
-    private float velocidad;    // velocidad horizontal
+    private float velocidad;    // Velocidad horizontal actual
     private float tiempo;       // tiempo acumulado para animación/movimiento
-    private Rectangle[] bounds; // hitbox ajustada
+    private Rectangle[] bounds; // Hitbox del enemigo
 
     /**
      * Constructor del enemigo volador.
@@ -35,19 +36,19 @@ public class Enemigo implements Colision {
     }
 
     /**
-     * Constructor del enemigo volador con velocidad parametrizable
-     * (útil para DifficultyStrategy en GM2.3).
+     * Constructor parametrizado: permite definir la velocidad inicial.
+     * Usado por la estrategia de dificultad para el patrón Strategy (GM2.3).
      */
     public Enemigo(Texture[] frames, float anchoBase, float startX, float worldH, float velocidad) {
         this.frames = frames;
         this.width = anchoBase * 0.7f;
         this.height = anchoBase * 0.7f;
         this.x = startX;
-        this.y = worldH / 2f; // posición base al centro de pantalla
+        this.y = worldH / 2f;
         this.velocidad = velocidad;
         this.tiempo = 0;
 
-        // Ajuste fino de hitbox (más pequeña que el sprite real)
+        // Hitbox reducida para colisiones más precisas
         float hitboxWidth = width * 0.75f;
         float hitboxHeight = height * 0.75f;
         float hitboxOffsetX = (width - hitboxWidth) / 2f;
@@ -66,7 +67,8 @@ public class Enemigo implements Colision {
         tiempo += dt;
         x -= velocidad * dt;
 
-        // Movimiento sinusoidal (Strategy GM2.3: comportamiento de vuelo)
+        //Movimiento sinusoidal que caracteriza este tipo de enemigo
+        //(Strategy GM2.3: comportamiento de vuelo)
         float offset = MathUtils.sin(tiempo * 3f) * 40f;
         float currentY = y + offset;
 
@@ -77,7 +79,7 @@ public class Enemigo implements Colision {
         );
     }
 
-    /** Dibuja el frame animado del enemigo */
+    /** Dibuja el frame animado correspondiente del enemigo */
     @Override
     public void draw(SpriteBatch batch, float worldHeight) {
         if (frames == null || frames.length == 0) return;
@@ -99,7 +101,7 @@ public class Enemigo implements Colision {
         bounds[0].setX(nuevoX + (width - bounds[0].width) / 2f);
     }
 
-    /** Verifica colisión con otro objeto rectangular */
+    /** Retorna true si colisiona con el jugador */
     @Override
     public boolean colisiona(Rectangle other) {
         for (Rectangle r : bounds) {
@@ -121,16 +123,16 @@ public class Enemigo implements Colision {
     @Override
     public float getAncho() { return bounds[0].width; }
 
-    /** Permite cambiar la velocidad en tiempo de ejecución (Strategy de dificultad) */
+    /** Ajusta la velocidad del enemigo en tiempo real (Strategy) */
     @Override
     public void setVelocidad(float nuevaVelocidad) {
         this.velocidad = nuevaVelocidad;
     }
 
     /**
-     * Aplica la estrategia de dificultad a este enemigo,
-     * usando el puntaje actual del jugador.
-     * → Evita instanceof en Obstaculo.
+     * Aplica la estrategia de dificultad al enemigo,
+     * usando el puntaje del jugador para ajustar su velocidad.
+     * Base clave para el patrón Strategy (GM2.3).
      */
     @Override
     public void aplicarEstrategia(DifficultyStrategy strategy, int score) {

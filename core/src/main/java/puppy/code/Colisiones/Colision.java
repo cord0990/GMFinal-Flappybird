@@ -2,13 +2,13 @@ package puppy.code.Colisiones;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
-import puppy.code.DifficultyStrategy; // ← IMPORTANTE
+import puppy.code.DifficultyStrategy;
 
 /**
  * Interfaz Colision
- * Define el contrato para todos los objetos que participan en el sistema de colisiones del juego.
- * Implementada por: Tubo, Enemigo, (y opcionalmente Jugador)
- * → Evidencia directa del punto GM1.5.
+ * Define el comportamiento estándar para cualquier elemento del juego
+ * que interactúa mediante colisiones (Tubo, Enemigo, etc.).
+ * → Evidencia del polimorfismo aplicado (GM1.5) y base para el patron Strategy (GM2.3).
  */
 public interface Colision {
 
@@ -43,9 +43,9 @@ public interface Colision {
     void setVelocidad(float nuevaVelocidad);
 
     /**
-     * Aplica la estrategia de dificultad al objeto de colisión,
-     * usando el puntaje actual del jugador.
-     * → Evita el uso de instanceof en Obstaculo.
+     * Aplica la estrategia de dificultad al objeto usando el puntaje actual.
+     * Permite que cada implementación decida su propio ajuste de dificultad.
+     * → Evita instanceof y mantiene el polimorfismo limpio para el patron Strategy(GM2.3).
      */
     void aplicarEstrategia(DifficultyStrategy strategy, int score);
 }

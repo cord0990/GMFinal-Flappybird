@@ -5,13 +5,15 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.MathUtils;
-import puppy.code.DifficultyStrategy; // ← NUEVO IMPORT
+
+import puppy.code.DifficultyStrategy;//Integración para el patrón Strategy (GM2.3)
 
 /**
  * Clase Tubo
- * Representa los obstáculos del juego (tubos superior e inferior).
- * Implementa la interfaz Colision → evidencia del punto GM1.5.
- * Aplica encapsulamiento (atributos privados + getters) → evidencia GM1.6.
+ * Representa un par de tubos (superior e inferior) que actúan como obstáculos.
+ * Implementa la interfaz Colision → evidencia del polimorfismo (GM1.5).
+ * Aplica encapsulamiento mediante atributos privados y getters (GM1.6).
+ * Ajusta su comportamiento usando DifficultyStrategy para el patrón Strategy (GM2.3).
  */
 public class Tubo implements Colision {
 
@@ -22,11 +24,12 @@ public class Tubo implements Colision {
     private static final float GAP = 120f; // tamaño del hueco entre tubos
     private Texture textura;             // textura del tubo
     private final Rectangle[] bounds = new Rectangle[2]; // hitboxes: [0]=superior, [1]=inferior
-    private Vector2 size = new Vector2(); // tamaño del sprite
-    private float worldHeight;           // alto lógico del mundo (para evitar 512 "quemado")
+    private Vector2 size = new Vector2(); // Tamaño de la textura
+    private float worldHeight;           // // Altura lógica del mundo (para evitar 512 "quemado")
 
     // Ajuste fino de la hitbox superior
     private static final float TOP_LIFT = 14f;
+
     /**
      * Constructor del tubo.
      * @param pipeTex textura del tubo
@@ -39,8 +42,8 @@ public class Tubo implements Colision {
     }
 
     /**
-     * Constructor del tubo con velocidad parametrizable
-     * (útil para DifficultyStrategy en GM2.3).
+     * Constructor parametrizado: permite definir la velocidad inicial del tubo.
+     * Utilizado por estrategias de dificultad para el patrón Strategy (GM2.3).
      */
     public Tubo(Texture pipeTex, float startX, float worldHeight, float velocidad) {
         this.textura = pipeTex;
@@ -56,21 +59,21 @@ public class Tubo implements Colision {
 
     // --- Métodos privados auxiliares ---
 
-    /** Genera aleatoriamente la posición vertical del hueco entre tubos */
+    /** Calcula aleatoriamente la posición vertical del hueco entre tubos */
     private void randomizeGap(float worldHeight) {
         float minY = 150;
         float maxY = worldHeight - 150;
         gapY = MathUtils.random(minY, maxY);
     }
 
-    /** Actualiza las posiciones de las hitboxes superior e inferior */
+    /** Actualiza las hitboxes superior e inferior según la posición actual */
     private void updateRects(float worldHeight) {
-        // tubo inferior
+        // Hitbox del tubo inferior
         float bottomHeight = gapY - GAP / 2f;
         if (bottomHeight < 0) bottomHeight = 0;
         bounds[1].set(xInicio, 0, size.x, bottomHeight);
 
-        // tubo superior
+        // Hitbox del tubo superior
         float topY = gapY + GAP / 2f;
         float topHitboxY = topY + TOP_LIFT;
         float topHitboxHeight = worldHeight - topHitboxY;
@@ -79,22 +82,22 @@ public class Tubo implements Colision {
         bounds[0].set(xInicio, topHitboxY, size.x, topHitboxHeight);
     }
 
-    // --- Métodos de la interfaz Colision (GM1.5) ---
+    //--- Implementación de la interfaz Colision --- (GM1.5) ---
 
-    /** Actualiza la posición del tubo a lo largo del tiempo */
+    /** Actualiza la posición del tubo desplazándolo hacia la izquierda */
     @Override
     public void update(float dt) {
         xInicio -= velocidad * dt;
         updateRects(worldHeight);
     }
 
-    /** Indica si el tubo ya salió completamente de la pantalla */
+    /** Indica si el tubo salió completamente de la pantalla */
     @Override
     public boolean fueraDePantalla() {
         return xInicio + size.x < 0;
     }
 
-    /** Reposiciona el tubo a una nueva coordenada X, generando un nuevo hueco aleatorio */
+    /** Reposiciona el tubo y genera un nuevo hueco aleatorio */
     @Override
     public void reposicionar(float newX) {
         xInicio = newX;
@@ -102,7 +105,7 @@ public class Tubo implements Colision {
         updateRects(worldHeight);
     }
 
-    /** Dibuja el par de tubos (superior e inferior) */
+    /** Dibuja el tubo superior e inferior */
     @Override
     public void draw(SpriteBatch batch, float worldHeight) {
         batch.draw(textura, xInicio, 0, size.x, (int) (gapY - GAP / 2f)); // tubo inferior
@@ -110,7 +113,7 @@ public class Tubo implements Colision {
             size.x, (int) (worldHeight - (gapY + GAP / 2f))); // tubo superior
     }
 
-    /** Verifica colisión entre el jugador y las hitboxes del tubo */
+    /** Retorna true si el jugador colisiona con alguno de los tubos */
     @Override
     public boolean colisiona(Rectangle boundsJugador) {
         return boundsJugador.overlaps(bounds[0]) || boundsJugador.overlaps(bounds[1]);
@@ -131,15 +134,15 @@ public class Tubo implements Colision {
     @Override
     public float getAncho() { return size.x; }
 
-    /** Permite cambiar la velocidad en tiempo de ejecución (Strategy de dificultad) */
+    /** Cambia la velocidad del tubo (usado por Strategy) */
     @Override
     public void setVelocidad(float nuevaVelocidad) {
         this.velocidad = nuevaVelocidad;
     }
 
     /**
-     * Aplica la estrategia de dificultad al tubo usando el puntaje actual.
-     * Evita el uso de instanceof en Obstaculo.
+     * Ajusta la velocidad del tubo usando la estrategia de dificultad.
+     * Parte fundamental para el patrón Strategy (GM2.3).
      */
     @Override
     public void aplicarEstrategia(DifficultyStrategy strategy, int score) {

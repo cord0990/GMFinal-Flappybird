@@ -8,35 +8,48 @@ import puppy.code.Screens.MainMenuScreen;
 
 /**
  * Clase FlappyGameMenu
- * Clase principal del juego (punto de entrada).
- * Extiende Game de LibGDX → administra pantallas, recursos y flujo general del juego.
- * Aplica encapsulamiento (GM1.6) y usa Singleton de Asset (GM2.1).
+ * Punto de entrada del juego. Administra el ciclo de vida general, las pantallas
+ * y los recursos compartidos. Extiende Game de LibGDX, permitiendo gestionar
+ * múltiples pantallas de forma centralizada.
+ *
+ * Usa el Singleton Asset para cargar recursos globales (GM2.1) y aplica
+ * encapsulamiento mediante atributos privados y getters (GM1.6).
  */
 public class FlappyGameMenu extends Game {
 
     // --- Constantes y atributos privados (GM1.6) ---
-    public static final float GROUND_LEVEL = 96f;
-    private SpriteBatch batch;
-    private BitmapFont font;
-    private int higherScore;
-    private Asset assets; // Acceso centralizado a los recursos del juego
+    public static final float GROUND_LEVEL = 96f; // Altura del suelo en el mundo
+    private SpriteBatch batch; // Batch global de renderizado
+    private BitmapFont font; // Fuente por defecto para textos
+    private int higherScore; // Mejor puntaje histórico del jugador
+    private Asset assets; // Acceso centralizado a recursos (Singleton)
 
-    /** Metodo principal: inicializa el juego y su primera pantalla */
+    /**
+     * Metodo principal de inicialización.
+     * Configura los recursos compartidos, activa el Singleton Asset
+     * y establece la pantalla inicial del juego.
+     */
     @Override
     public void create() {
         batch = new SpriteBatch();
         font = new BitmapFont(); // Fuente por defecto de LibGDX
         assets = Asset.getInstancia(); // Uso del Singleton (GM2.1)
-        this.setScreen(new MainMenuScreen(this)); // Pantalla inicial
+        this.setScreen(new MainMenuScreen(this)); // Pantalla inicial del juego
     }
 
-    /** Ciclo de renderizado principal (mantiene el flujo del juego) */
+    /**
+     * Ciclo de renderizado global.
+     * LibGDX delega el render a la pantalla activa.
+     */
     @Override
     public void render() {
         super.render(); // Llama al render de la pantalla activa
     }
 
-    /** Libera los recursos globales al cerrar la aplicación */
+    /**
+     * Libera recursos globales al cerrar la aplicación.
+     * Se asegura de que todos los recursos administrados por Asset también sean liberados.
+     */
     @Override
     public void dispose() {
         batch.dispose();

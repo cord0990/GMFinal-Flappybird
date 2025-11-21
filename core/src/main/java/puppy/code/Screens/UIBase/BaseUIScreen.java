@@ -51,7 +51,7 @@ public abstract class BaseUIScreen implements Screen {
     }
 
     /**
-     * render — Aplicacion método template:
+     * render — Aplicacion metodo template:
      * 1) limpiar pantalla
      * 2) actualizar cámara
      * 3) delegar update lógico
@@ -74,7 +74,7 @@ public abstract class BaseUIScreen implements Screen {
         batch.end();
     }
 
-    //Solo por si se necesita en otro momento: si la ventana cambia tamaño, actualiza cámara y guarda dimensiones. 
+    //Solo por si se necesita en otro momento: si la ventana cambia tamaño, actualiza cámara y guarda dimensiones.
     @Override
     public void resize(int width, int height) {
         // por simplicidad mantenemos worldWidth/worldHeight fijos, pero actualizamos la cámara.
@@ -89,7 +89,7 @@ public abstract class BaseUIScreen implements Screen {
 
     @Override
     public void hide() {}
-    
+
     private void clearScreen() {
     	ScreenUtils.clear(0f, 0f, 0f, 1f);
     }
@@ -99,9 +99,9 @@ public abstract class BaseUIScreen implements Screen {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
     }
- 
 
-    //libera recursos comunes y llama al hook para recursos propios 
+
+    //libera recursos comunes y llama al hook para recursos propios
     @Override
     public void dispose() {
         if (batch != null) {
@@ -129,7 +129,7 @@ public abstract class BaseUIScreen implements Screen {
     //Dibujar el contenido particular de la pantalla,Todas las operaciones de dibujo con SpriteBatch deben realizarse aquí.
     protected abstract void renderContent(float delta);
 
-    //Liberar recursos específicos de la pantalla (texturas, etc.). 
+    //Liberar recursos específicos de la pantalla (texturas, etc.).
     protected void unloadResources() {};
 }
 

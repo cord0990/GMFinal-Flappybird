@@ -4,31 +4,36 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.audio.Sound;
 import puppy.code.Colisiones.Colision;
 import puppy.code.Screens.GameScreen;
-import puppy.code.FlappyGameMenu; // ← IMPORT NECESARIO
 
 /**
  * Clase Obstaculo
- * Administra todos los objetos que generan colisiones (tubos, enemigos, etc.).
- * Utiliza polimorfismo a través de la interfaz Colision → GM1.5 / GM1.6.
- * Aplica el patrón Strategy (GM2.3), ya que cada objeto tiene su propio comportamiento.
+ * Administra todos los objetos que generan colisiones (tubos, enemigos, etc.)
+ * en la escena de juego. Centraliza la actualización, reposicionamiento y
+ * detección de colisiones con el jugador.
+ *
+ * Utiliza polimorfismo a través de la interfaz Colision (GM1.5 / GM1.6)
+ * y coordina los parámetros de dificultad usando DifficultyStrategy
+ * para el patrón Strategy (GM2.3).
  */
 public class Obstaculo {
 
     // --- Atributo privado (encapsulamiento GM1.6) ---
-    private Colision[] colisiones; // Colección de objetos con comportamiento distinto
+    private Colision[] colisiones; // Conjunto de objetos que pueden colisionar con el jugador
 
-    // Strategy de dificultad (GM2.3)
+    // Estrategia de dificultad aplicada a los obstáculos (para el patrón Strategy (GM2.3))
     private DifficultyStrategy difficulty;
 
     /**
      * Constructor: inicializa tubos y enemigo con sus texturas desde Asset.
+     * Asigna la estrategia de dificultad recibida, que define velocidades
+     * iniciales según el puntaje.
      * @param ast instancia de Asset (Singleton)
      * @param difficulty estrategia de dificultad (Strategy GM2.3)
      */
     public Obstaculo(Asset ast, DifficultyStrategy difficulty) {
         this.difficulty = difficulty;
 
-        // Al inicio asumimos score = 0
+        // Puntaje inicial del jugador
         int initialScore = 0;
 
         this.colisiones = new Colision[] {
@@ -39,34 +44,41 @@ public class Obstaculo {
         };
     }
 
-    /** Devuelve todos los objetos con colisiones activas */
+    /** Devuelve todos los objetos de colisión activos en la escena. */
     public Colision[] getColisiones() {
         return this.colisiones;
     }
 
     /**
-     * Permite cambiar la dificultad en tiempo real.
-     * Se usa cuando GameScreen actualiza el puntaje.
+     * Actualiza la estrategia de dificultad asociada a los obstáculos.
+     * Se invoca desde GameScreen cuando cambia el puntaje y se requiere
+     * ajustar velocidades y espaciado para el patrón Strategy (GM2.3).
+     *
+     * @param newDifficulty nueva estrategia de dificultad a aplicar
+     * @param score puntaje actual del jugador
      */
     public void setDifficulty(DifficultyStrategy newDifficulty, int score) {
         this.difficulty = newDifficulty;
 
-        // Polimorfismo puro — cada objeto aplica la estrategia según su tipo
+        // Polimorfismo puro: cada Colision sabe cómo aplicar la estrategia
         for (Colision c : colisiones) {
             c.aplicarEstrategia(newDifficulty, score);
         }
     }
 
     /**
-     * Metodo que actualiza, verifica colisiones y administra puntaje.
-     * Este metodo combina estrategias de movimiento y detección (GM2.3).
+     * Actualiza, reposiciona y verifica colisiones para todos los obstáculos.
+     * También administra el puntaje del jugador al superar cada obstáculo.
+     * Combina el comportamiento propio de cada Colision con la dificultad
+     * definida por DifficultyStrategy para el patrón Strategy (GM2.3).
      */
     public void actualizarColision(float dt, FlappyGameMenu game, GameScreen screen) {
         Sound hurt = (Sound) screen.getAssets().getBirdHurt();
         boolean colisiona = false;
 
         for (Colision p : this.getColisiones()) {
-            p.update(dt); // Cada tipo ejecuta su propia estrategia
+            // Cada obstáculo actualiza su lógica interna (tubos/enemigo)
+            p.update(dt);
 
             // --- Reposicionamiento cuando sale de pantalla ---
             if (p.fueraDePantalla()) {
@@ -74,7 +86,7 @@ public class Obstaculo {
                 for (Colision other : this.getColisiones())
                     if (other.getX() > max) max = other.getX();
 
-                // distance basada en la estrategia
+                // Distancia entre obstáculos determinada por la estrategia de dificultad
                 float spacing = difficulty.getObstacleSpacing(screen.getScore());
 
                 p.reposicionar(max + spacing);
@@ -103,6 +115,7 @@ public class Obstaculo {
                 float centroAhora = p.getX() + p.getAncho() / 2f;
                 float centroAntes = centroAhora + p.getVelocidad() * dt;
 
+                // Si el pájaro cruzó el centro del obstáculo entre frames
                 if (centroAntes >= birdX && centroAhora < birdX) {
                     screen.setScore(screen.getScore() + 1);
 
@@ -110,7 +123,7 @@ public class Obstaculo {
                         game.setHigherScore(screen.getScore());
                     }
 
-                    // Aplicamos estrategia al subir puntaje (redundante pero válido)
+                    // Aplicamos la estrategia con el nuevo puntaje (dificultad dinámica)
                     p.aplicarEstrategia(difficulty, screen.getScore());
                 }
             }

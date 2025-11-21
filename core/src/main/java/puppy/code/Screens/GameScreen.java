@@ -20,36 +20,53 @@ import puppy.code.DynamicDifficulty;
 
 /**
  * Clase GameScreen
- * Controla la lógica principal del juego (movimiento, colisiones, puntaje, etc.).
- * Usa Asset como Singleton (GM2.1) y DifficultyStrategy como patrón Strategy (GM2.3).
+ *
+ * Pantalla principal del juego donde ocurre toda la lógica de gameplay:
+ * movimiento del jugador, desplazamiento de obstáculos, colisiones,
+ * actualización de puntaje y transición a pantallas especiales.
+ *
+ * - Usa Asset como Singleton para recursos globales (GM2.1).
+ * - Aplica el patrón Strategy (GM2.3) mediante DifficultyStrategy para ajustar
+ *   dinámicamente la dificultad según el puntaje del jugador.
+ * - Mantiene responsabilidades bien separadas → evidencia de OO y encapsulamiento (GM1.6).
  */
 public class GameScreen implements Screen {
 
-    // --- Constantes y atributos privados ---
+    /**--- Constantes y atributos privados ---*/
+
+    // --- Dimensiones lógicas de la pantalla ---
     public static final float worldHeight = 600f;
     public static final float worldWidth = 288f;
 
+    // --- Dependencias principales del ciclo de juego ---
     private final FlappyGameMenu game;
     private SpriteBatch batch;
     private BitmapFont font;
     private OrthographicCamera camera;
 
+    // --- Entidades del gameplay ---
     private Character bird;
     private Obstaculo obstaculos;
     private Music bgMusic;
 
+    // --- Constantes de física ---
     private final float gravity = -600f;
 
+    // --- Estado del juego ---
     private int score = 0;
     private boolean gameOver = false;
     private boolean initialized = false;
 
     private Asset assets;
 
-    // *** patron Strategy --- Estrategia de dificultad (GM2.3) ***
+    // --- Patrón Strategy (GM2.3):
+    // Define la estrategia de dificultad utilizada durante la partida.
     private DifficultyStrategy difficulty;
 
-    /** Constructor: recibe la referencia al juego principal */
+    /**
+     * Constructor: recibe la referencia al juego principal y asigna la
+     * estrategia inicial de dificultad (DynamicDifficulty).
+     */
     public GameScreen(final FlappyGameMenu game) {
         this.game = game;
 
@@ -57,7 +74,10 @@ public class GameScreen implements Screen {
         this.difficulty = new DynamicDifficulty();
     }
 
-    /** Inicializa recursos y entidades de la partida */
+    /**
+     * Inicializa los recursos y entidades. LibGDX puede llamar este metodo
+     * múltiples veces, por eso se controla mediante "initialized".
+     */
     @Override
     public void show() {
         if (initialized) return; // evita reinicializar si LibGDX llama show() otra vez
@@ -67,15 +87,12 @@ public class GameScreen implements Screen {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, worldWidth, worldHeight);
 
-        // Uso del Singleton para recursos compartidos (GM2.1)
+        // Acceso global a recursos mediante Singleton (GM2.1)
         assets = Asset.getInstancia();
-
         bgMusic = assets.getBackgroundMusic();
 
-        // Entidades principales
+        // Instancia del jugador y los obstáculos iniciales
         bird = new Character(20, 350, assets.getBirdFrames(), assets.getBirdFlap());
-
-        // Obstáculos creados usando la estrategia de dificultad
         obstaculos = new Obstaculo(assets, difficulty);
 
         score = 0;
@@ -83,11 +100,12 @@ public class GameScreen implements Screen {
         initialized = true;
     }
 
-    /** Bucle principal de render: actualiza lógica y dibuja */
+    /**Ciclo principal: delega actualización de lógica y luego dibuja.*/
     @Override
     public void render(float delta) {
         update(delta);
 
+        // Seguridad: si la pantalla cambió durante update, no dibujar más
         if (game.getScreen() != this) return;
 
         ScreenUtils.clear(0, 0, 0, 1);
@@ -95,20 +113,31 @@ public class GameScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
+
+        // Fondo general
         batch.draw(assets.getBackground(), 0, 0,worldWidth,worldHeight);
 
         bgMusic.play();
+
+        // Dibujo polimórfico de los obstáculos
         for (Colision p : obstaculos.getColisiones()) {
             p.draw(batch, worldHeight);
         }
 
+        // Jugador y suelo
         bird.draw(batch);
         batch.draw(assets.getGround(), 0, 0);
+
+        // Puntaje actual
         font.draw(batch, "Puntaje: " + score, 10, worldHeight - 10);
+
         batch.end();
     }
 
-    /** Actualiza el estado del juego **/
+    /**
+     * Actualiza física, colisiones y estado del juego.
+     * Orquesta la lógica central del gameplay.
+     */
     private void update(float dt) {
         // --- Pausa ---
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -116,7 +145,7 @@ public class GameScreen implements Screen {
             this.pause();
         }
 
-        // --- Si ya está en Game Over ---
+        // --- Game Over ---
         if (gameOver) {
             if (score > game.getHigherScore()) {
                 game.setHigherScore(score);
@@ -126,24 +155,24 @@ public class GameScreen implements Screen {
             return;
         }
 
-        // --- Movimiento del jugador ---
+        // --- Movimiento y física ---
         bird.movimiento(dt, gravity);
 
+        // --- Colisiones y reposicionamientos ---
         obstaculos.actualizarColision(dt,game,this);
 
-        // *** Cambio automático de dificultad (GM2.3) ***
+        // --- Ajuste dinámico de la dificultad (Strategy GM2.3) ---
         actualizarDificultad();
 
+        // --- Verificación de límites de pantalla ---
         bird.fueraDePantalla(this, game);
     }
 
     /**
-     * Cambia la estrategia de dificultad según el puntaje.
+     * Aplica la estrategia actual de dificultad enviando el puntaje a Obstaculo.
+     * DynamicDifficulty calcula valores dinámicos a partir del score.
      */
     private void actualizarDificultad() {
-
-        // DynamicDifficulty ahora NO guarda score, recibe score por parámetro
-        // y Obstaculo tiene un nuevo setDifficulty(newDifficulty, score)
         obstaculos.setDifficulty(difficulty, score);
     }
 
@@ -156,7 +185,10 @@ public class GameScreen implements Screen {
     @Override public void resume() { }
     @Override public void hide() { }
 
-    /** Libera solo recursos locales; Asset se libera en FlappyGameMenu */
+    /**
+     * Libera los recursos locales de la pantalla.
+     * Los recursos globales se liberan a nivel de FlappyGameMenu.
+     */
     @Override
     public void dispose() {
         if (batch != null) {

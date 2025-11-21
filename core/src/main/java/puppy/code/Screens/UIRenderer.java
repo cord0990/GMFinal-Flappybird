@@ -9,20 +9,22 @@ import com.badlogic.gdx.graphics.Color;
 
 /**
  * Clase UIRenderer
- * Clase auxiliar encargada de dibujar los elementos de interfaz (textos, paneles, títulos, etc.).
+ * Clase auxiliar responsable de dibujar elementos de interfaz reutilizables:
+ * paneles, textos y títulos para todas las pantallas del juego.
  *
- * Esta clase promueve la reutilización y la coherencia visual entre pantallas
- * → contribuye a la modularidad (GM1.6) y apoya la estructura común del Template Method (GM2.2),
- * ya que todas las pantallas heredan de BaseUIScreen y utilizan sus métodos de dibujo.
+ * Promueve la coherencia visual y reduce duplicación de código, fortaleciendo
+ * la modularidad (GM1.6). Además, funciona como un componente de apoyo dentro
+ * de la estructura común de pantallas basada en Template Method (GM2.2),
+ * ya que todas las pantallas utilizan sus métodos de dibujo estándar.
  */
 public class UIRenderer {
 
     // --- Atributos privados ---
-    private final Texture white1x1; // Textura base 1x1 blanca para paneles y fondos translúcidos
-    private final BitmapFont font;  // Fuente común para toda la interfaz
+    private final Texture white1x1; // Textura mínima 1x1 utilizada para generar paneles rectangulares de cualquier tamaño
+    private final BitmapFont font;  // Fuente tipográfica utilizada por todas las pantallas del juego
 
     public UIRenderer() {
-
+        // Genera una textura blanca 1x1 para construir paneles con transparencia
         Pixmap pm = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pm.setColor(Color.WHITE);
         pm.fill();
@@ -30,14 +32,14 @@ public class UIRenderer {
         pm.dispose();
 
         font = new BitmapFont();
-        //Deja el font legible
+        // Asegura una visualización más suave del texto
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
     }
 
 
-    // --- Métodos de dibujo reutilizables ---
+    // --- Métodos reutilizables de dibujo (interfaz común para las distintas pantallas) ---
 
-    /** Dibuja un panel rectangular translúcido de color negro (usado en GameOver, EndScreen, etc.) */
+    /** Dibuja un panel rectangular semitransparente (útil para menús y pantallas de fin de juego). */
     public void drawPanel(SpriteBatch batch, float x, float y, float w, float h, float alpha) {
         Color prev = batch.getColor();
         batch.setColor(0f, 0f, 0f, alpha);
@@ -45,13 +47,13 @@ public class UIRenderer {
         batch.setColor(prev);
     }
 
-    /** Dibuja texto centrado en una posición (sin escala) */
+    /** Dibuja texto centrado horizontal y verticalmente respecto al punto dado. */
     public void drawCentered(SpriteBatch batch, String text, float cx, float cy) {
         GlyphLayout layout = new GlyphLayout(font, text);
         font.draw(batch, layout, cx - layout.width / 2f, cy + layout.height / 2f);
     }
 
-    /** Dibuja texto centrado con una escala específica (más grande o pequeño) */
+    /** Versión escalada del metodo anterior para títulos o textos destacados. */
     public void drawCenteredScaled(SpriteBatch batch, String text, float cx, float cy, float scale) {
         float prevScale = font.getData().scaleX;
         font.getData().setScale(scale);
@@ -59,12 +61,12 @@ public class UIRenderer {
         font.getData().setScale(prevScale);
     }
 
-    /** Dibuja texto simple en coordenadas (no centrado) */
+    /** Dibuja texto sin centrado, usado para mensajes informativos o etiquetas fijas. */
     public void draw(SpriteBatch batch, String text, float x, float y) {
         font.draw(batch, text, x, y);
     }
 
-    /** Dibuja texto con una escala personalizada */
+    /** Dibuja texto con un factor de escalado personalizado. */
     public void drawScaled(SpriteBatch batch, String text, float x, float y, float scale) {
         float prevScale = font.getData().scaleX;
         font.getData().setScale(scale);
@@ -77,7 +79,7 @@ public class UIRenderer {
         drawScaled(batch, text, x, y, scale);
     }
 
-    /** Libera los recursos (textura y fuente) */
+    /** Libera los recursos gráficos asociados a la interfaz. */
     public void dispose() {
         white1x1.dispose();
         font.dispose();
