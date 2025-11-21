@@ -8,11 +8,11 @@ package puppy.code;
 public interface DifficultyStrategy {
 
     /** Velocidad de desplazamiento de los tubos */
-    float getPipeSpeed();
+    float getPipeSpeed(int score);
 
     /** Velocidad de desplazamiento del enemigo volador */
-    float getEnemySpeed();
+    float getEnemySpeed(int score);
 
     /** Distancia horizontal entre obstáculos cuando se reposicionan */
-    float getObstacleSpacing();
+    float getObstacleSpacing(int score);
 }

@@ -1,11 +1,10 @@
 package puppy.code;
 
 import com.badlogic.gdx.math.Rectangle;
-import puppy.code.Colisiones.Colision;
-import puppy.code.Colisiones.Enemigo;
-import puppy.code.Colisiones.Tubo;
-import puppy.code.Screens.GameScreen;
 import com.badlogic.gdx.audio.Sound;
+import puppy.code.Colisiones.Colision;
+import puppy.code.Screens.GameScreen;
+import puppy.code.FlappyGameMenu; // ← IMPORT NECESARIO
 
 /**
  * Clase Obstaculo
@@ -29,14 +28,14 @@ public class Obstaculo {
     public Obstaculo(Asset ast, DifficultyStrategy difficulty) {
         this.difficulty = difficulty;
 
-        this.colisiones = new Colision[] {
-            // Tubos fijos con velocidad definida por la estrategia
-            new Tubo(ast.getTuboTex(), 350, GameScreen.worldHeight, difficulty.getPipeSpeed()),
-            new Tubo(ast.getTuboTex(), 550, GameScreen.worldHeight, difficulty.getPipeSpeed()),
+        // Al inicio asumimos score = 0
+        int initialScore = 0;
 
-            // Enemigo volador con velocidad definida por la estrategia
-            new Enemigo(ast.getEnemyFrames(), ast.getTuboTex().getWidth(),
-                750, GameScreen.worldHeight, difficulty.getEnemySpeed())
+        this.colisiones = new Colision[] {
+            new puppy.code.Colisiones.Tubo(ast.getTuboTex(), 350, GameScreen.worldHeight, difficulty.getPipeSpeed(initialScore)),
+            new puppy.code.Colisiones.Tubo(ast.getTuboTex(), 550, GameScreen.worldHeight, difficulty.getPipeSpeed(initialScore)),
+            new puppy.code.Colisiones.Enemigo(ast.getEnemyFrames(), ast.getTuboTex().getWidth(),
+                750, GameScreen.worldHeight, difficulty.getEnemySpeed(initialScore))
         };
     }
 
@@ -47,19 +46,14 @@ public class Obstaculo {
 
     /**
      * Permite cambiar la dificultad en tiempo real.
-     * Se usa cuando GameScreen pasa de NormalDifficulty → HardDifficulty.
+     * Se usa cuando GameScreen actualiza el puntaje.
      */
-    public void setDifficulty(DifficultyStrategy newDifficulty) {
+    public void setDifficulty(DifficultyStrategy newDifficulty, int score) {
         this.difficulty = newDifficulty;
 
-        // Cambiar velocidad de todos los objetos ya creados:
+        // Polimorfismo puro — cada objeto aplica la estrategia según su tipo
         for (Colision c : colisiones) {
-            if (c instanceof Tubo) {
-                c.setVelocidad(newDifficulty.getPipeSpeed());
-            }
-            else if (c instanceof Enemigo) {
-                c.setVelocidad(newDifficulty.getEnemySpeed());
-            }
+            c.aplicarEstrategia(newDifficulty, score);
         }
     }
 
@@ -81,7 +75,7 @@ public class Obstaculo {
                     if (other.getX() > max) max = other.getX();
 
                 // distance basada en la estrategia
-                float spacing = difficulty.getObstacleSpacing();
+                float spacing = difficulty.getObstacleSpacing(screen.getScore());
 
                 p.reposicionar(max + spacing);
             }
@@ -115,6 +109,9 @@ public class Obstaculo {
                     if (screen.getScore() > game.getHigherScore()) {
                         game.setHigherScore(screen.getScore());
                     }
+
+                    // Aplicamos estrategia al subir puntaje (redundante pero válido)
+                    p.aplicarEstrategia(difficulty, screen.getScore());
                 }
             }
         }

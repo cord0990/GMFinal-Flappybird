@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.MathUtils;
+import puppy.code.DifficultyStrategy; // ← NUEVO IMPORT
 
 /**
  * Clase Tubo
@@ -102,6 +103,7 @@ public class Tubo implements Colision {
     }
 
     /** Dibuja el par de tubos (superior e inferior) */
+    @Override
     public void draw(SpriteBatch batch, float worldHeight) {
         batch.draw(textura, xInicio, 0, size.x, (int) (gapY - GAP / 2f)); // tubo inferior
         batch.draw(textura, xInicio, (int) (gapY + GAP / 2f),
@@ -133,5 +135,14 @@ public class Tubo implements Colision {
     @Override
     public void setVelocidad(float nuevaVelocidad) {
         this.velocidad = nuevaVelocidad;
+    }
+
+    /**
+     * Aplica la estrategia de dificultad al tubo usando el puntaje actual.
+     * Evita el uso de instanceof en Obstaculo.
+     */
+    @Override
+    public void aplicarEstrategia(DifficultyStrategy strategy, int score) {
+        this.velocidad = strategy.getPipeSpeed(score);
     }
 }

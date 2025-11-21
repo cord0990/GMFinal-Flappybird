@@ -2,6 +2,7 @@ package puppy.code.Colisiones;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
+import puppy.code.DifficultyStrategy; // ← IMPORTANTE
 
 /**
  * Interfaz Colision
@@ -40,4 +41,11 @@ public interface Colision {
 
     /** Permite cambiar la velocidad en tiempo de ejecución (usado por DifficultyStrategy GM2.3) */
     void setVelocidad(float nuevaVelocidad);
+
+    /**
+     * Aplica la estrategia de dificultad al objeto de colisión,
+     * usando el puntaje actual del jugador.
+     * → Evita el uso de instanceof en Obstaculo.
+     */
+    void aplicarEstrategia(DifficultyStrategy strategy, int score);
 }

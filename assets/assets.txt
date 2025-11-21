@@ -1,7 +1,3 @@
-bucket.png
-drop.png
-drop.wav
-dropBad.png
 flappy/background.png
 flappy/bird0.png
 flappy/bird1.png
@@ -23,10 +19,7 @@ flappy/gameover_bg.png
 flappy/ground.png
 flappy/Pantalla_inicio.png
 flappy/pipe.png
-FLAPPY_README.txt
+flappy/pipeMain.png
 flappy_Sounds/bird_jump.mp3
 flappy_Sounds/gameplay_music.mp3
 flappy_Sounds/hurt_music.mp3
-hurt.ogg
-NoCopyright.mp3
-rain.mp3

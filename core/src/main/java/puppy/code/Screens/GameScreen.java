@@ -15,7 +15,6 @@ import puppy.code.FlappyGameMenu;
 import puppy.code.Obstaculo;
 import puppy.code.Colisiones.Colision;
 
-// IMPORTANTE → importar las estrategias
 import puppy.code.DifficultyStrategy;
 import puppy.code.DynamicDifficulty;
 
@@ -47,7 +46,7 @@ public class GameScreen implements Screen {
 
     private Asset assets;
 
-    // *** Estrategia de dificultad (GM2.3) ***
+    // *** patron Strategy --- Estrategia de dificultad (GM2.3) ***
     private DifficultyStrategy difficulty;
 
     /** Constructor: recibe la referencia al juego principal */
@@ -109,7 +108,7 @@ public class GameScreen implements Screen {
         batch.end();
     }
 
-    /** Actualiza todo el estado del juego */
+    /** Actualiza el estado del juego **/
     private void update(float dt) {
         // --- Pausa ---
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -140,14 +139,12 @@ public class GameScreen implements Screen {
 
     /**
      * Cambia la estrategia de dificultad según el puntaje.
-     * Cuando el jugador llega a 15 puntos, cambia a HardDifficulty.
      */
     private void actualizarDificultad() {
-        if (difficulty instanceof DynamicDifficulty) {
-            ((DynamicDifficulty) difficulty).updateScore(score);
-            // Aplicar la nueva estrategia (velocidades/espaciado) a los obstáculos ya existentes:
-            obstaculos.setDifficulty(difficulty);
-        }
+
+        // DynamicDifficulty ahora NO guarda score, recibe score por parámetro
+        // y Obstaculo tiene un nuevo setDifficulty(newDifficulty, score)
+        obstaculos.setDifficulty(difficulty, score);
     }
 
     // --- Métodos del ciclo de vida de pantalla ---

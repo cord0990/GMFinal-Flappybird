@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import puppy.code.DifficultyStrategy;
 
 /**
  * Clase Enemigo
@@ -124,5 +125,15 @@ public class Enemigo implements Colision {
     @Override
     public void setVelocidad(float nuevaVelocidad) {
         this.velocidad = nuevaVelocidad;
+    }
+
+    /**
+     * Aplica la estrategia de dificultad a este enemigo,
+     * usando el puntaje actual del jugador.
+     * → Evita instanceof en Obstaculo.
+     */
+    @Override
+    public void aplicarEstrategia(DifficultyStrategy strategy, int score) {
+        this.velocidad = strategy.getEnemySpeed(score);
     }
 }
