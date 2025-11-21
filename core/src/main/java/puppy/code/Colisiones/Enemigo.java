@@ -41,21 +41,21 @@ public class Enemigo implements Colision {
      */
     public Enemigo(Texture[] frames, float anchoBase, float startX, float worldH, float velocidad) {
         this.frames = frames;
-        this.width = anchoBase * 0.7f;
-        this.height = anchoBase * 0.7f;
+        this.width = anchoBase * 0.6f;
+        this.height = anchoBase * 0.6f;
         this.x = startX;
         this.y = worldH / 2f;
         this.velocidad = velocidad;
         this.tiempo = 0;
 
         // Hitbox reducida para colisiones más precisas
-        float hitboxWidth = width * 0.75f;
-        float hitboxHeight = height * 0.75f;
+        float hitboxWidth = width * 0.5f;
+        float hitboxHeight = height * 0.4f;
         float hitboxOffsetX = (width - hitboxWidth) / 2f;
-        float hitboxOffsetY = (height - hitboxHeight) / 2f;
+        float hitboxOffsetY = height * 0.30f ;
 
         this.bounds = new Rectangle[]{
-            new Rectangle(x + hitboxOffsetX, y + hitboxOffsetY, hitboxWidth, hitboxHeight)
+            new Rectangle(x + hitboxOffsetX, y + hitboxOffsetY - 40, hitboxWidth, hitboxHeight)
         };
     }
 
@@ -75,7 +75,7 @@ public class Enemigo implements Colision {
         // Actualiza posición de la hitbox en base al frame actual
         bounds[0].setPosition(
             x + (width - bounds[0].width) / 2f,
-            currentY + (height - bounds[0].height) / 2f
+            currentY + (height - bounds[0].height) / 2f + 15
         );
     }
 
@@ -85,7 +85,8 @@ public class Enemigo implements Colision {
         if (frames == null || frames.length == 0) return;
         int frameIndex = ((int)(tiempo * 10)) % frames.length;
         Texture frame = frames[frameIndex];
-        batch.draw(frame, bounds[0].x, bounds[0].y, bounds[0].width, bounds[0].height);
+        batch.draw(frame, bounds[0].x - (width - bounds[0].width) / 2f,
+            bounds[0].y - (height - bounds[0].height) / 2f, width, height);
     }
 
     /** Indica si el enemigo ha salido completamente de pantalla */
