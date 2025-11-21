@@ -29,18 +29,32 @@ public class Obstaculo {
      * iniciales según el puntaje.
      * @param ast instancia de Asset (Singleton)
      * @param difficulty estrategia de dificultad (Strategy GM2.3)
+     * @param initialScore puntaje inicial entregado desde GameScreen
      */
-    public Obstaculo(Asset ast, DifficultyStrategy difficulty) {
+    public Obstaculo(Asset ast, DifficultyStrategy difficulty, int initialScore) {
         this.difficulty = difficulty;
 
-        // Puntaje inicial del jugador
-        int initialScore = 0;
-
+        //initialScore ahora se recibe como parametro, ya no se fija A/O dentro de obstaculo --sugerido por ayudante--
         this.colisiones = new Colision[] {
-            new puppy.code.Colisiones.Tubo(ast.getTuboTex(), 350, GameScreen.worldHeight, difficulty.getPipeSpeed(initialScore)),
-            new puppy.code.Colisiones.Tubo(ast.getTuboTex(), 550, GameScreen.worldHeight, difficulty.getPipeSpeed(initialScore)),
-            new puppy.code.Colisiones.Enemigo(ast.getEnemyFrames(), ast.getTuboTex().getWidth(),
-                750, GameScreen.worldHeight, difficulty.getEnemySpeed(initialScore))
+            new puppy.code.Colisiones.Tubo(
+                ast.getTuboTex(),
+                350,
+                GameScreen.worldHeight,
+                difficulty.getPipeSpeed(initialScore)
+            ),
+            new puppy.code.Colisiones.Tubo(
+                ast.getTuboTex(),
+                550,
+                GameScreen.worldHeight,
+                difficulty.getPipeSpeed(initialScore)
+            ),
+            new puppy.code.Colisiones.Enemigo(
+                ast.getEnemyFrames(),
+                ast.getTuboTex().getWidth(),
+                750,
+                GameScreen.worldHeight,
+                difficulty.getEnemySpeed(initialScore)
+            )
         };
     }
 

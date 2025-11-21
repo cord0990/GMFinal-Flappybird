@@ -93,7 +93,7 @@ public class GameScreen implements Screen {
 
         // Instancia del jugador y los obstáculos iniciales
         bird = new Character(20, 350, assets.getBirdFrames(), assets.getBirdFlap());
-        obstaculos = new Obstaculo(assets, difficulty);
+        obstaculos = new Obstaculo(assets, difficulty, score); //ahora obstaculo recibe tambien score inicial -sugerido por ayudante-
 
         score = 0;
         gameOver = false;
